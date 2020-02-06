@@ -16,9 +16,11 @@ function! s:new(namespace, ...) abort
   let self.plugin_name = get(opts, 'plugin_name', a:namespace)
   let self.provider = get(opts, 'provider', '_')
 
-  if has_key(s:_providers, self.provider)
-    echoerr 'Avaliable providers are ' . join(keys(s:_providers), ', ') . '.'
-    return {}
+  if type(self..provider) == v:t_string
+    if has_key(s:_providers, self.provider)
+      throw 'Avaliable providers are ' . join(keys(s:_providers), ', ') . '.'
+    endif
+    let self.provider = s:_providers[self.self.provider]
   endif
 
   let self = deepcopy(s:_options)
@@ -86,12 +88,10 @@ function s:_options.get(name, ...)  " {{{1
 
   let option = self._options[a:name]
 
-  let scope_dicts = {'g': g:, 't': t:, 'w': w:, 'b': b:}
-
   for scope in _valid_scopes
     if index(scope, scopes) != -1
-      if exists(scope_dicts[scope][self.namespace . '#' . a:name])
-        return scope_dicts[scope][a:name]
+      if self.provider.is_available(self, scope, a:name)
+        return self.provider.get(self, scope, a:name)
       endif
     endif
   endfor
@@ -162,7 +162,7 @@ function s:_options.set(name, ...)  " {{{1
     return
   endif
 
-  call providers[self.provider].set(scope, a:name, value)
+  call self.provider.set(self, scope, a:name, value)
 endfunction
 
 
@@ -203,3 +203,4 @@ endfunction
 
 " modelines {{{1
 " vim: set fdm=marker
+
