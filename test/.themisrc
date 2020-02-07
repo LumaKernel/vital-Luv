@@ -1,0 +1,42 @@
+set encoding=utf-8
+
+try
+  language message C
+catch
+endtry
+set helplang=en
+filetype plugin on
+
+let s:assert = themis#helper('assert')
+call themis#option('runtimepath', expand('~/.cache/dein/repos/github.com/vim-jp/vital.vim'))
+
+call themis#option('recursive', 1)
+call themis#option('reporter', 'spec')
+call themis#helper('command').with(s:assert)
+
+let s:check_values = [
+      \   "--",
+      \   "split(execute('ve'),\"\\n\")[0]",
+      \   "v:version",
+      \   "has('nvim')",
+      \   "--",
+      \ ]
+
+
+" {{{
+function! s:repeat(str, n)
+  return join(map(range(a:n + 1), '""'), a:str)
+endfunction
+
+let s:maxlen = max(map(copy(s:check_values), 'len(v:val)'))
+for s:vals in s:check_values
+  if s:vals ==# '--'
+    call themis#log('------------------------------------------')
+  else
+    call themis#log(s:vals . ':' . s:repeat(' ', s:maxlen + 4 - len(s:vals)) . '%s', eval(s:vals))
+  endif
+endfor
+" }}}
+
+ let s:assert = themis#helper('assert')
+" call themis#helper('command').with(s:assert)

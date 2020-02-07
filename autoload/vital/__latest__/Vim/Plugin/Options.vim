@@ -1,8 +1,16 @@
 
 let s:_providers = {}
-let s:_providers['_'] = vital#__luv__#import('Vim.Plugin.Options.Provider.Underline')
-let s:_providers['#'] = vital#__luv__#import('Vim.Plugin.Options.Provider.Sharp')
-let s:_providers['object'] = vital#__luv__#import('Vim.Plugin.Options.Provider.Object')
+function! s:_vital_loaded(V) abort
+  let s:V = a:V
+  call s:_providers['_'] = a:V.import('Options.Underline'))
+  call s:_providers['#'] = a:V.import('Options.Sharp'))
+  call s:_providers['object'] = a:V.import('Options.Object'))
+endfunction
+function! s:_vital_depends() abort
+  return [
+        \ 'System.Cache.SingleFile',
+        \]
+endfunction
 
 
 let s:_options = {}
@@ -34,11 +42,11 @@ let _options.options = {}
 
 " member functions
 function! s:_options.define_setter_function(funcname) abort  " {{{1
-  let g:[a:funcname] = s:new(a:namespace).set
+  let g:[a:funcname] = s:new(a:namespace).user_set
 endfunction
 
 function! s:_options.define_getter_function(funcname) abort  " {{{1
-  let g:[a:funcname] = s:new(a:namespace).get
+  let g:[a:funcname] = s:new(a:namespace).user_get
 endfunction
 
 function! s:_options.define(name, ...) abort  " {{{1
@@ -46,12 +54,10 @@ function! s:_options.define(name, ...) abort  " {{{1
   let default = get(opts, 'default', s:_NULL)
   let deprecate = get(opts, 'deprecate', 0)
   let validator = get(opts, 'validator', s:null)
-  let no_declare_default = get(opts, 'no_declare_default', ['g']) || default is s:_NULL
-  let scopes = get(opts, 'scopes', ['g'])
+  let no_declare_default = get(opts, 'no_declare_default', 0) || default is s:_NULL
+  let scopes = get(opts, 'scopes', 'g')
 
-  if type(scopes) == v:t_string | let scopes = split(scopes, '\zs') | endif
-
-  if !matchstr(join(scopes, ''), '[gtwb]') != ''
+  if !matchstr(scopes, '[gtwb]') != ''
     echoerr '[Vim.Plugin.Option] Eace scopes should be oen of ' . string(s:_valid_scopes) . '.'
     return
   endif
@@ -100,12 +106,6 @@ function s:_options.get(name, ...)  " {{{1
     return default_ovewrite
   endif
   return option.default
-endfunction
-
-function s:_options.unset(name, ...)  " {{{1
-  let opts = a:0 ? a:1 : {}
-  let opts.unset = 1
-  call self.set(a:name, opts)
 endfunction
 
 function s:_options.set_default(name, ...) " {{{1
@@ -163,6 +163,16 @@ function s:_options.set(name, ...)  " {{{1
   endif
 
   call self.provider.set(self, scope, a:name, value)
+endfunction
+
+
+function s:_options.user_set(name, value, ...)  " {{{1
+  let scope = a:0 ? a:1 : 'g'
+  call self.set(a:name, {'value': a:value, 'scope': a:scope}})
+endfunction
+function s:_options.user_get(name, value, ...)  " {{{1
+  let scope = a:0 ? a:1 : 'g'
+  call self.get(a:name, {'value': a:value, 'scope': a:scope}})
 endfunction
 
 
