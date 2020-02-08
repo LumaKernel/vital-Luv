@@ -11,6 +11,7 @@ CONTENTS				*Vital.Options-contents*
 
 INTRODUCTION			|Vital.Options-introduction|
 FUNCTION			|Vital.Options-function|
+PROVIDER			|Vital.Options-Provider|
 
 
 ==============================================================================
@@ -50,7 +51,6 @@ It can also generate the formatted docuent about your plugin's options.
 	    return s:Options
 	endfunction
 
-
 	" -----
 
 	" Your plugin users can ...
@@ -60,7 +60,9 @@ It can also generate the formatted docuent about your plugin's options.
 	" -> got error like "[my_awesome_pluing/mode] Invalid value
 	"   'mode'. Selections are ['edit', 'split', 'vsplit']."
 
+	" -----
 
+	" You can make documents about options like this
 	" let doc = join(s:Options.generate_document(), "\n")
 <
 
@@ -246,7 +248,7 @@ new({namespace}, {dict})
 	be corresponding to one line.
 
 =============================================================================
-PROVIDERS 				*Vital.Options-Provider*
+PROVIDER 				*Vital.Options-Provider*
 
 
 You can make a provider. |Vital.Options-Provider| must have below functions.
