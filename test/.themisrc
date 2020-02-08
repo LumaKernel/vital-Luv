@@ -32,16 +32,12 @@ let s:check_values = [
 
 
 " {{{
-function! s:repeat(str, n)
-  return join(map(range(a:n + 1), '""'), a:str)
-endfunction
-
 let s:maxlen = max(map(copy(s:check_values), 'len(v:val)'))
 for s:vals in s:check_values
   if s:vals ==# '--'
     call themis#log('------------------------------------------')
   else
-    call themis#log(s:vals . ':' . s:repeat(' ', s:maxlen + 4 - len(s:vals)) . '%s', eval(s:vals))
+    call themis#log(s:vals . ':' . repeat(' ', s:maxlen + 4 - len(s:vals)) . '%s', eval(s:vals))
   endif
 endfor
 " }}}
