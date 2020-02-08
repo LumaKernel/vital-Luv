@@ -80,8 +80,8 @@ function! s:_options.define(name, ...) abort  " {{{1
     return
   endif
 
-  if index(scopes, 'g') == -1
-    echoerr "[Options] Scopes should inlcude global scope, 'g'."
+  if len(scopes) == 0
+    echoerr '[Options] Scopes cannot be empty'
     return
   endif
 
@@ -94,8 +94,6 @@ function! s:_options.define(name, ...) abort  " {{{1
     echoerr "[Options] 'validator' must be function."
     return
   endif
-
-  let scopes = s:_normalize_scopes(scopes)
 
   if !no_declare_default
     call self.provider.set(self, 'g', a:name, Default)
@@ -152,11 +150,9 @@ function s:_options.get(name, ...)  " {{{1
   let option = self.options[a:name]
   let scopes = option.scopes
 
-  for scope in s:_valid_scopes
-    if index(scopes, scope) != -1
-      if self.provider.is_available(self, scope, a:name)
-        return self.provider.get(self, scope, a:name)
-      endif
+  for scope in scopes
+    if self.provider.is_available(self, scope, a:name)
+      return self.provider.get(self, scope, a:name)
     endif
   endfor
 
@@ -185,12 +181,12 @@ endfunction
 function s:_options.set(name, ...)  " {{{1
   let opts = a:0 ? a:1 : {}
   let value = get(opts, 'value', s:_NULL)
-  let scope = get(opts, 'scope', 'g')
+  let scope = get(opts, 'scope', s:_NULL)
   let reporter = '[' . self.plugin_name . '] '
 
   let _only_test = get(opts, '_only_test', 0)
 
-  if type(scope) != v:t_string
+  if type(scope) != v:t_string && scope isnot s:_NULL
     echoerr reporter . 'Invalid type of scope. ' .
           \ 'Only string is accepted.'
     return
@@ -213,6 +209,10 @@ function s:_options.set(name, ...)  " {{{1
 
   let option = self.options[a:name]
   let scopes = option.scopes
+
+  if scope is s:_NULL
+    let scope = scopes[0]
+  endif
 
   if scope ==# 'ALL'
     let scope_to_set = scopes
@@ -312,7 +312,7 @@ function s:_options.generate_document()  " {{{1
   for name in sort(keys(self.options))
     let option = self.options[name]
     let tag = '*' . self.provider.name(self, name) . '*'
-    call add(res, repeat("\t", min([10 - ((strlen(tag)+7)/8), 6])) . tag)
+    call add(res, repeat("\t", min([10 - ((strlen(tag)+7)/8), 5])) . tag)
     call add(res, self.provider.format(self, option.scopes, name))
     if option.default isnot s:_NULL
       call add(res, "\t" . 'Default : `' . string(option.default) . '`')
@@ -395,16 +395,6 @@ endfunction
 
 function! s:_format_type(type) abort  " {{{1
   return join(a:type, ' | ')
-endfunction
-
-function! s:_normalize_scopes(scopes) abort  " {{{1
-  let normalized = []
-  for scope in s:_valid_scopes
-    if index(a:scopes, scope) != -1
-      call add(normalized, scope)
-    endif
-  endfor
-  return normalized
 endfunction
 
 
