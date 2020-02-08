@@ -46,8 +46,9 @@ It can also generate the formatted docuent about your plugin's options.
 
 	call s:Options.define_user_setter('my#awesome#options#set')
 
-	" You should provide the port function
-	function! my#awesome#options()
+	" You should provide the port function for your plugin to get option
+	" value and ensure the options are defined.
+	function! my#awesome#options#instance()
 	    return s:Options
 	endfunction
 
