@@ -1,4 +1,4 @@
-*Vital/Options.txt*		Define default variables
+*Vital/Options.txt*		Define options and provide user friendly utils
 
 Author : Luma <tomorinao.info@gmail.com>
 License: Unlicense
