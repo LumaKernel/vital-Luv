@@ -33,7 +33,7 @@ Describe Options
            \   'no_declare_default': 1,
            \   'validator': { value -> (type(value) =~# v:t_string ? 0: "It must be string.") }
            \ })
-      Assert False(exists(ns1 . '_' . 'b1'))
+      Assert False(exists('g:' . ns1 . '_' . 'b1'))
       
       call opts1.define('dep1', {'default': 'off', 'select': ['on', 'off'], 'deprecated': 1})
       call opts1.define('dep2', {'deprecated': 1, 'select': ['op1', 'op2']})
@@ -122,6 +122,9 @@ Describe Options
       Throws /\ctype/ opts1.set('type2', {'value': 'string'})
       Throws /\ctype/ opts1.set('type3', {'value': 'yo'})
     End
+    It throws when got unkown name
+      Throws /\cunknown option name/ opts1.set('none', {'value': 0})
+    End
   End
 
   Describe .is_set()
@@ -171,7 +174,10 @@ Describe Options
       Assert Equals(opts1.get('a4'), 'x1')
     End
     It throws when got unkown option
-      Throws(opts1.get('none'), '.')
+      Throws /\cunknown option name/ opts1.get('none')
+    End
+    It throws when got unset option
+      Throws /\cno default/ opts1.get('no_set')
     End
   End
   
@@ -198,7 +204,7 @@ Describe Options
       Assert Equals(doc[9], '')
       Assert Match(doc[10], '^\tThis is.*description$')
 
-      Assert Equals(len(doc), 65)
+      Assert Equals(len(doc), 71)
     End
   End
 End

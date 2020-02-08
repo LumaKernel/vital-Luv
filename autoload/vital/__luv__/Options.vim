@@ -133,12 +133,21 @@ endfunction
 
 
 function s:_options.is_set(name)  " {{{1
-  return self.get(a:name) isnot v:_NULL
+  return self.get(a:name, {'_ignore_unset': 1}) isnot s:_NULL
 endfunction
 
 function s:_options.get(name, ...)  " {{{1
   let opts = a:0 ? a:1 : {}
   let default_ovewrite = get(opts, 'default_ovewrite', s:_NULL)
+
+  let _ignore_unset = get(opts, '_ignore_unset', 0)
+
+  let reporter = '[' . self.plugin_name . '] '
+
+  if !has_key(self.options, a:name)
+    echoerr reporter . "Unknown option name '" . a:name . "'"
+    return
+  endif
 
   let option = self.options[a:name]
   let scopes = option.scopes
@@ -154,8 +163,8 @@ function s:_options.get(name, ...)  " {{{1
   if default_ovewrite isnot s:_NULL
     return default_ovewrite
   endif
-  if options.default is s:_NULL
-    echoerr '[Options] Failed to get. The option has no default and not is not set value.'
+  if option.default is s:_NULL && !_ignore_unset
+    echoerr '[Options] Failed to get. The option has no default and is not set value.'
     return
   endif
   return option.default
@@ -194,7 +203,7 @@ function s:_options.set(name, ...)  " {{{1
   endif
 
   if !has_key(self.options, a:name)
-    echoerr reporter . "Invalid option name '" . a:name . "'"
+    echoerr reporter . "Unknown option name '" . a:name . "'"
     return
   endif
 
@@ -211,7 +220,7 @@ function s:_options.set(name, ...)  " {{{1
     let scope_to_set = split(scope, '\zs')
   endif
 
-  if option.deprecated isnot 0 && !_only_test
+  if option.deprecated isnot 0 && !_only_test && !_is_set
     let message = "Option '" . a:name . "' is deprecated."
     if type(option.deprecated) == v:t_string
       let message .= ' ' . option.deprecated
@@ -274,6 +283,7 @@ function s:_options.set(name, ...)  " {{{1
   endif
 
   if _only_test | return | endif
+
 
   for scope1 in scope_to_set
     if value is s:_UNSET

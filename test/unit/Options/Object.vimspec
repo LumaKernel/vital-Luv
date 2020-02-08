@@ -1,0 +1,27 @@
+Describe Options/Object
+  Before all
+    let O = vital#vital#import('Options')
+    let ns1 = 'namespace_test_Options1'
+    let opts1 = O.new(ns1, {'provider': 'object'})
+  End
+
+  It provides options in object
+    call opts1.define('a1')
+    Assert False(exists('g:' . ns1 . '_' . 'a1'))
+    Assert False(exists('g:' . ns1))
+
+    call opts1.define('a2', {'default': 'val', 'scopes': 'gw'})
+    Assert False(exists('g:' . ns1 . '_' . 'a2'))
+    Assert Equals(g:[ns1]['a2'], 'val')
+
+    call opts1.define('b1', {
+          \   'default': 'bar',
+          \   'no_declare_default': 1,
+          \ })
+    Assert False(exists('g:' . ns1 . '_' . 'b1'))
+    Assert False(has_key(g:[ns1], 'b1'))
+
+    call opts1.set('a2', {'value': 'x', 'scope': 'w'})
+    Assert Equals(w:[ns1]['a2'], 'x')
+  End
+End
