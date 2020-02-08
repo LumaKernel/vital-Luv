@@ -22,7 +22,7 @@ Describe Options
       Assert True(exists('g:' . ns1 . '_' . 'a3'))
       Assert Equals(g:[ns1 . '_' . 'a3'], 'val')
       call opts1.define('a4', {'default': 'x1', 'select': ['x1', 'x2'], 'scopes': 'gtw'})
-      call opts1.define('a5', {'default': 's1', 'select': ['s1', 's2', 0, 1], 'scopes': 'wtg'})
+      call opts1.define('a5', {'default': 's1', 'select': ['s1', 's2', 0, 1], 'scopes': 'gtw'})
       call opts1.define('a6', {
            \   'default': 'sample.cpp',
            \   'validator': { value -> (value =~# '\.cpp$' ? 0 : "It must end with '.cpp'.") }
@@ -55,7 +55,7 @@ Describe Options
       Throws /\cduplicate/ opts1.define('dup', {'default': 'val'})
 
       Throws /\cscope/ opts2.define('a2', {'default': 'val','scopes': 'abc'})
-      Throws /\cglobal scope/ opts2.define('a2', {'default': 'val','scopes': 'b'})
+      Throws /\cbe empty/ opts2.define('a2', {'default': 'val','scopes': ''})
 
       Throws /\cmust be list/ opts2.define('a2', {'default': 'val','select': ''})
 
@@ -173,6 +173,18 @@ Describe Options
       " from w: overwritting g:
       Assert Equals(opts1.get('a4'), 'x1')
     End
+    It is affected by the order of scopes
+      call opts1.define('sc_gw', {'default': 'def', 'scopes': 'gw', 'type': 'string'})
+      call opts1.define('sc_bw', {'default': 'def', 'scopes': 'bw', 'type': 'string'})
+      call opts1.set('sc_gw', {'value': 'g', 'scope': 'g'})
+      call opts1.set('sc_gw', {'value': 'w', 'scope': 'w'})
+
+      call opts1.set('sc_bw', {'value': 'w', 'scope': 'w'})
+      call opts1.set('sc_bw', {'value': 'b', 'scope': 'b'})
+
+      Assert Equals(opts1.get('sc_gw'), 'g')
+      Assert Equals(opts1.get('sc_bw'), 'b')
+    End
     It throws when got unkown option
       Throws /\cunknown option name/ opts1.get('none')
     End
@@ -195,16 +207,17 @@ Describe Options
   Describe .generate_document()
     It creates a formatted document
       let doc = opts1.generate_document()
-      Assert Equals(strlen(matchstr(doc[0], '^\t*')), 6)
+      call writefile(doc + ['vim:tw=78:ts=8:noet:ft=help:norl:cole=2'], '.dev/doctest.txt')
+      Assert Equals(strlen(matchstr(doc[0], '^\t*')), 5)
       Assert Equals(doc[1], 'g:namespace_test_Options1_a1')
       Assert Equals(doc[2], '')
-      Assert Equals(strlen(matchstr(doc[3], '^\t*')), 6)
-      Assert Equals(doc[7], '[g,t,w,b]:namespace_test_Options1_a3')
+      Assert Equals(strlen(matchstr(doc[3], '^\t*')), 5)
+      Assert Equals(doc[7], '[g,b,w,t]:namespace_test_Options1_a3')
       Assert Equals(doc[8], "\tDefault : `'val'`")
       Assert Equals(doc[9], '')
       Assert Match(doc[10], '^\tThis is.*description$')
 
-      Assert Equals(len(doc), 71)
+      Assert Equals(len(doc), 83)
     End
   End
 End

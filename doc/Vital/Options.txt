@@ -35,6 +35,7 @@ It can also generate the formatted docuent about your plugin's options.
 
 	call s:Options.define('mode', {
 	    \  'default': 'edit',
+	    \  'scopes': 'gb',
 	    \  'select': ['edit', 'split', 'vsplit'],
 	    \ })
 
@@ -59,7 +60,7 @@ It can also generate the formatted docuent about your plugin's options.
 
 	call my#awesome#options#set('mode', 'new')
 	" -> got error like "[my_awesome_pluing/mode] Invalid value
-	"   'mode'. Selections are ['edit', 'split', 'vsplit']."
+	"   'new'. Selections are ['edit', 'split', 'vsplit']."
 
 	" -----
 
@@ -126,17 +127,17 @@ new({namespace}, {dict})
 		If set, the default value is not defined in global even if
 		{dict.default} is given.
 	  - {dict.scopes}
-	    	Default : `g`
+	    	Default : {dict.scopes}[0]
 	    	Type : string
 		
 		The scopes that the user can specify. Ones of `gtwb` are
-		available. You should include `g`. The order does not effect.
-		Scope checking is done from right to left in `gtwb`.
+		available. This is corresponding to `g:`, `t:`, `w:`, `b:`, resp.
+		Scope checking for determing the value is searched from index 0 toward the last.
 	  - {dict.type}
-	    	Type : string | int | list
+	    	Type : string | number | list
 		
 		The types. You can specify the type string that appeared in
-		`v:t_*` variables ( |v:t_TYPE| ) like `string` or type int
+		`v:t_*` variables ( |v:t_TYPE| ) like `string` or type number
 		like `v:t_string`.
 		You can specify OR types with separating with `|` or use
 		list. Spaces are trimmed.
