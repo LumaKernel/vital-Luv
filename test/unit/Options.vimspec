@@ -1,0 +1,156 @@
+
+Describe Options
+  Before all
+    let O = vital#vital#import('Options')
+    let ns1 = 'namespace_test_Options1'
+    let ns2 = 'namespace_test_Options2'
+    let opts1 = O.new(ns1)
+    let opts2 = O.new(ns2, {'plugin_name': 'test_plugin'})
+  End
+
+  Describe .define()
+    It defines options
+      call opts1.define('a1')
+      Assert False(exists('g:' . ns1 . '_' . 'a1'))
+      call opts1.define('a2', {})
+      call opts1.define('a3', {'default': 'val','scopes': 'gbwt'})
+      Assert True(exists('g:' . ns1 . '_' . 'a3'))
+      Assert Equals(g:[ns1 . '_' . 'a3'], 'val')
+      call opts1.define('a4', {'default': 'x1', 'validator': ['x1', 'x2'], 'scopes': 'gtw'})
+      call opts1.define('a5', {'default': 's1', 'validator': ['s1', 's2', 0, 1], 'scopes': 'wtg'})
+      call opts1.define('a6', {
+           \   'default': 'sample.cpp',
+           \   'validator': { name, value -> (value =~# '\.cpp$' ? 0 : name . " must ends with '.cpp'.") }
+           \ })
+      
+      call opts1.define('b1', {
+           \   'default': 'bar',
+           \   'no_declare_default': 1,
+           \   'validator': { name, value -> (type(value) =~# v:t_string ? 0: name . " must be string.") }
+           \ })
+      Assert False(exists(ns1 . '_' . 'b1'))
+      
+      call opts1.define('dep1', {'default': 'off', 'validator': ['on', 'off'], 'deprecated': 1})
+      call opts1.define('dep2', {'deprecated': 1, 'validator': ['op1', 'op2']})
+      
+      call opts2.define('a1')
+      
+      Assert Equals(g:[ns1 . '_' . 'a4'], 'x1')
+    End
+    It throws errors when got illegal options
+      Throws /\cscope/ opts2.define('a2', {'default': 'val','scopes': 'abc'})
+      Throws /\cglobal scope/ opts2.define('a2', {'default': 'val','scopes': 'b'})
+    End
+  End
+  
+  Describe .define_user_setter()
+    It defines global setter function
+      call opts1.define_user_setter('SetPluginOption')
+      call opts1.define_user_setter('g:SetPluginOption2')
+      Assert True(exists('*g:SetPluginOption'))
+      Assert True(exists('*g:SetPluginOption2'))
+    End
+  End
+  
+  Describe .define_user_getter()
+    It defines global getter function
+      call opts1.define_user_getter('GetPluginOption')
+      call opts1.define_user_getter('g:GetPluginOption2')
+      Assert True(exists('*g:GetPluginOption'))
+      Assert True(exists('*g:GetPluginOption2'))
+    End
+  End
+  
+  Describe .set()
+    It sets global variable
+      call opts1.set('a1', {'value': 'foo'})
+      Assert Equals(g:[ns1 . '_' . 'a1'], 'foo')
+  
+      call opts1.set('a2', {'value': 'abc'})
+      Assert Equals(g:[ns1 . '_' . 'a2'], 'abc')
+    End
+    It sets tab local variable
+      call opts1.set('a3', {'value': 'abc', 'scope': 't'})
+      Assert Equals(t:[ns1 . '_' . 'a3'], 'abc')
+    End
+    It sets window local variable
+      call opts1.set('a5', {'value': 0, 'scope': 'w'})
+      Assert Equals(w:[ns1 . '_' . 'a5'], 0)
+  
+      call opts1.set('a4', {'value': 'x2', 'scope': 'w'})
+      Assert Equals(w:[ns1 . '_' . 'a4'], 'x2')
+    End
+    It sets buffer local variable
+      call opts1.set('a3', {'value': [1,2], 'scope': 'b'})
+      Assert Equals(b:[ns1 . '_' . 'a3'], [1,2])
+    End
+    It throws when got illegal scope
+      Throws /\cinvalid scope/ opts1.set('a1', {'value': 's1', 'scope': 'b'})
+      Throws /\cinvalid scope/ opts1.set('a1', {'value': 's1', 'scope': 'gab'})
+      Throws /\cinvalid scope/ opts1.set('a1', {'value': 's1', 'scope': 'a'})
+      Throws /\cinvalid type/ opts1.set('a1', {'value': 's1', 'scope': -1})
+    End
+    It throws when the validator fails
+      Throws /\cstring/ opts1.set('a4', {'value': 0})
+      Throws /\cinvalid value/ opts1.set('a4', {'value': 'a'})
+      Throws /\C\[namespace_test_Options1\] Invalid value is set for option 'namespace_test_Options1\/a5'\./ opts1.set('a5', {'value': 'b'})
+      Throws /\cmust ends with/ opts1.set('a6', {'value': 'awesome.php'})
+      Throws /\cmust be string/ opts1.set('b1', {'value': 0})
+    End
+  End
+  
+  Describe .set_default()
+    It makes value default
+      call opts1.set_default('a5')
+      Assert Equals(g:[ns1 . '_' . 'a5'], 's1')
+
+      call opts1.set_default('a4', { 'scope': 't' })
+      Assert Equals(t:[ns1 . '_' . 'a4'], 'x1')
+    End
+    It unset if the option has no default
+      call opts1.set_default('a2')
+      Assert False(exists('g:' . ns1 . '_' . 'a2'))
+    End
+  End
+  
+  Describe .user_set()
+    It sets options with user friendly interface
+      call opts1.user_set('a1', 'baz')
+      Assert Equals(g:[ns1 . '_' . 'a1'], 'baz')
+      call opts1.user_set('a3', 'fuga', 'b')
+      Assert Equals(b:[ns1 . '_' . 'a3'], 'fuga')
+    End
+    It can be used with .define_user_setter()
+      call g:SetPluginOption('a1', 'piyo')
+      Assert Equals(g:[ns1 . '_' . 'a1'], 'piyo')
+      call g:SetPluginOption('a3', 123, 'w')
+      Assert Equals(w:[ns1 . '_' . 'a3'], 123)
+    End
+  End
+  
+  Describe .get()
+    It returns a value set or default
+      " from g:
+      Assert Equals(opts1.get('a1'), 'piyo')
+      " from default
+      Assert Equals(opts1.get('a3'), 'val')
+      " from w: overwritting g:
+      Assert Equals(opts1.get('a4'), 'x1')
+    End
+    It throws when got unkown option
+      Throws(opts1.get('none'), '.')
+    End
+  End
+  
+  Describe .user_get()
+    It returns a value with user friendly interface
+      Assert Equals(opts1.user_get('a1'), 'piyo')
+      Assert Equals(opts1.user_get('a6'), 'sample.cpp')
+    End
+    It can be used with .define_user_getter()
+      Assert Equals(opts1.get('dep1'), 'off')
+      Assert Equals(g:GetPluginOption('dep1'), 'off')
+    End
+  End
+End
+

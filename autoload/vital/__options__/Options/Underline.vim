@@ -1,4 +1,9 @@
 
+function! s:unset(options, scope, name) abort
+  let scope_dicts = {'g': g:, 't': t:, 'w': w:, 'b': b:}
+  silent! unlet scope_dicts[a:scope][a:options.namespace . '_' . a:name]
+endfunction
+
 function! s:set(options, scope, name, value) abort
   let scope_dicts = {'g': g:, 't': t:, 'w': w:, 'b': b:}
   let scope_dicts[a:scope][a:options.namespace . '_' . a:name] = a:value

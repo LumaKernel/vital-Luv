@@ -7,8 +7,16 @@ endtry
 set helplang=en
 filetype plugin on
 
+let s:vital_dir = resolve(expand('<sfile>:p:h') . '/../.dev/vital.vim')
+if !isdirectory(s:vital_dir)
+  if executable('git')
+    call mkdir(resolve(s:vital_dir . '/..'), 'p')
+    exe '!git clone https://github.com/vim-jp/vital.vim' s:vital_dir
+  endif
+endif
+
+call themis#option('runtimepath', s:vital_dir)
 let s:assert = themis#helper('assert')
-call themis#option('runtimepath', expand('~/.cache/dein/repos/github.com/vim-jp/vital.vim'))
 
 call themis#option('recursive', 1)
 call themis#option('reporter', 'spec')
@@ -38,5 +46,3 @@ for s:vals in s:check_values
 endfor
 " }}}
 
- let s:assert = themis#helper('assert')
-" call themis#helper('command').with(s:assert)
