@@ -1,13 +1,15 @@
 
 let s:_providers = {}
 function! s:_vital_loaded(V) abort
-  let s:V = a:V
+  let s:L = a:V.import('Data.List')
+
   let s:_providers['_'] = a:V.import('Options.Underline')
   let s:_providers['#'] = a:V.import('Options.Sharp')
   let s:_providers['object'] = a:V.import('Options.Object')
 endfunction
 function! s:_vital_depends() abort
   return [
+        \ 'Data.List',
         \ 'Options.Underline',
         \ 'Options.Sharp',
         \ 'Options.Object',
@@ -29,7 +31,7 @@ for s:_name in s:_typenames
 endfor
 
 
-function! s:new(namespace, ...) abort
+function! s:new(namespace, ...) abort  " {{{
   let opts = a:0 ? a:1 : {}
 
   let self = deepcopy(s:_options)
@@ -38,14 +40,14 @@ function! s:new(namespace, ...) abort
 
   if type(self.provider) == v:t_string
     if !has_key(s:_providers, self.provider)
-      throw '[Options] Avaliable providers are ' . join(map(keys(s:_providers), {_, val-> "'" . val . "'"}), ', ') . '.'
+      throw '[Options] Avaliable providers are ' . join(map(keys(s:_providers), '"''" . v:val . "''"'), ', ') . '.'
     endif
     let self.provider = s:_providers[self.provider]
   endif
 
   let self.namespace = a:namespace
   return self
-endfunction
+endfunction  " }}}
 
 " member varialbles
 let s:_options.options = {}
@@ -65,9 +67,13 @@ function! s:_options.define(name, ...) abort  " {{{1
   let opts = a:0 ? a:1 : {}
   let Default = get(opts, 'default', s:_NULL)
   let deprecated = get(opts, 'deprecated', 0)
-  let Validator = get(opts, 'validator', v:null)
+  let Validator = get(opts, 'validator', s:_NULL)
+  let select = get(opts, 'select', s:_NULL)
   let no_declare_default = get(opts, 'no_declare_default', 0) || Default is s:_NULL
   let scopes = split(get(opts, 'scopes', 'g'), '\zs')
+  let type = get(opts, 'type', s:_NULL)
+  let formatted_type = get(opts, 'formatted_type', s:_NULL)
+  let doc = get(opts, 'doc', s:_NULL)
 
   if matchstr(join(scopes, ''), '[^gtwb]') !=# ''
     echoerr "[Options] Each scopes should be oen of '" . string(s:_valid_scopes) . "'."
@@ -79,24 +85,50 @@ function! s:_options.define(name, ...) abort  " {{{1
     return
   endif
 
+  if select isnot s:_NULL && type(select) != v:t_list
+    echoerr "[Options] 'select' must be list."
+    return
+  endif
+
+  if Validator isnot s:_NULL && type(Validator) != v:t_func
+    echoerr "[Options] 'validator' must be function."
+    return
+  endif
+
   let scopes = s:_normalize_scopes(scopes)
 
   if !no_declare_default
     call self.provider.set(self, 'g', a:name, Default)
   endif
 
-  if type(Validator) == v:t_list && len(Validator) == len(filter(copy(Validator), 'type(v:val) == v:t_string'))
-    let Validator = s:validator_list_str(Validator)
-  elseif type(Validator) == v:t_list
-    let Validator = s:validator_list_eq(Validator)
+  if has_key(self.options, a:name)
+    echoerr "[Options] Option '" . a:name . "' duplicates."
+    return
+  endif
+
+  let formatted_type = ''
+  if type isnot s:_NULL
+    let type = s:_type_to_list(type)
+    if formatted_type is s:_NULL
+      let formatted_type = s:_format_type(type)
+    endif
   endif
 
   let self.options[a:name] = {
+        \   'name': a:name,
         \   'scopes': scopes,
         \   'deprecated': deprecated,
         \   'default': Default,
-        \   'validator': Validator
+        \   'validator': Validator,
+        \   'select': select,
+        \   'type': type,
+        \   'formatted_type': formatted_type,
+        \   'doc': doc,
         \ }
+
+  if Default isnot s:_NULL
+    call self.set(a:name, { 'value': Default, '_only_test': 1 })
+  endif
 endfunction
 
 
@@ -146,7 +178,8 @@ function s:_options.set(name, ...)  " {{{1
   let value = get(opts, 'value', s:_NULL)
   let scope = get(opts, 'scope', 'g')
   let reporter = '[' . self.plugin_name . '] '
-  let optname = "'" . self.namespace . '/' . a:name . "'"
+
+  let _only_test = get(opts, '_only_test', 0)
 
   if type(scope) != v:t_string
     echoerr reporter . 'Invalid type of scope. ' .
@@ -167,6 +200,8 @@ function s:_options.set(name, ...)  " {{{1
 
   " From here, a:name was found to be valid.
 
+  let reporter = '[' . self.plugin_name . '/' . a:name . '] '
+
   let option = self.options[a:name]
   let scopes = option.scopes
 
@@ -176,8 +211,7 @@ function s:_options.set(name, ...)  " {{{1
     let scope_to_set = split(scope, '\zs')
   endif
 
-
-  if option.deprecated isnot 0
+  if option.deprecated isnot 0 && !_only_test
     let message = "Option '" . a:name . "' is deprecated."
     if type(option.deprecated) == v:t_string
       let message .= ' ' . option.deprecated
@@ -187,14 +221,6 @@ function s:_options.set(name, ...)  " {{{1
     echohl None
   endif
 
-  for scope1 in scope_to_set
-    if index(scopes, scope1) == -1
-      echoerr reporter . "Invalid scope specification '" . scope . "'. " .
-            \ 'Use ones of [' . join(scopes, ', ') . ']'
-      return
-    endif
-  endfor
-
   if value is s:_NULL
     if option.default isnot s:_NULL
       let value = option.default
@@ -203,13 +229,51 @@ function s:_options.set(name, ...)  " {{{1
     endif
   endif
 
-  if type(option.validator) == v:t_func
-    let err = option.validator(optname, value)
-    if err isnot 0
-      echoerr reporter . err
+  " Here, value is not s:_NULL.
+
+  for scope1 in scope_to_set
+    if index(scopes, scope1) == -1
+      echoerr reporter . "Invalid scope specification '" . scope . "'. " .
+            \ 'Use ones of [' . join(scopes, ', ') . ']'
       return
     endif
+  endfor
+
+  if value isnot s:_UNSET
+    " -- option value checks from here
+
+    if option.type isnot s:_NULL
+      if index(option.type, get(s:_num2type, type(value), 0)) == -1
+        echoerr reporter . 'Invalid type of value. ' .
+              \ "Type must be '" . option.formatted_type . "'."
+        return
+      endif
+    endif
+
+    if option.select isnot s:_NULL
+      let found = 0
+      for candidate in option.select
+        if type(value) == type(candidate) && value ==# candidate
+          let found = 1 | break
+        endif
+      endfor
+      if !found
+        echoerr reporter . 'Invalid value ' . string(value) . '. ' .
+              \ 'Selections are ' . string(option.select) . ' .'
+        return
+      endif
+    endif
+
+    if option.validator isnot s:_NULL
+      let err = option.validator(value)
+      if err isnot 0
+        echoerr reporter . err
+        return
+      endif
+    endif
   endif
+
+  if _only_test | return | endif
 
   for scope1 in scope_to_set
     if value is s:_UNSET
@@ -232,44 +296,98 @@ endfunction
 function s:_options.user_get(name)  " {{{1
   return self.get(a:name)
 endfunction
-
-
-function! s:validator_list_eq(candidates) abort  " {{{1
-  let validator = {}
-  function validator.validate(name, value) abort closure
-    for candidate in a:candidates
-      if type(candidate) == type(a:value) && candidate ==# a:value
-        return 0
-      endif
-    endfor
-    return 'Invalid value is set for option ' . a:name . '.'
-  endfunction
-
-  return validator.validate
-endfunction
-
-
-function! s:validator_list_str(candidates) abort  " {{{1
-  let validator = {}
-  function validator.validate(name, value) abort closure
-    if type(a:value) != v:t_string
-      return 'Invalid type of value. ' .
-            \ "Option '" . a:name . "' only accepts string values."
+function s:_options.generate_document()  " {{{1
+  " FIXME : Not supporting multibyte
+  let res = []
+  for name in sort(keys(self.options))
+    let option = self.options[name]
+    let tag = '*' . self.provider.name(self, name) . '*'
+    call add(res, repeat("\t", min([10 - ((strlen(tag)+7)/8), 6])) . tag)
+    call add(res, self.provider.format(self, option.scopes, name))
+    if option.default isnot s:_NULL
+      call add(res, "\t" . 'Default : `' . string(option.default) . '`')
     endif
-
-    for candidate in a:candidates
-      if candidate ==# a:value
-        return 0
+    if option.type isnot s:_NULL
+      call add(res, "\t" . 'Type : ' . option.formatted_type)
+    endif
+    if option.type isnot s:_NULL
+      call add(res, "\t" . 'Selections : `' . string(option.select) . '`')
+    endif
+    if option.doc isnot s:_NULL
+      call add(res, '')
+      for para in option.doc
+        for line in s:_format_paragraph(para, 72)
+          call add(res, "\t" . line)
+        endfor
+      endfor
+    endif
+    call add(res, '')
+  endfor
+  return res
+endfunction
+" function! s:format_paragraph(para, width) {{{1
+let s:_break_chars =
+      \ ['.', ',', ' ', '-\%(\w\)\=']
+      \ + map(["'", '"', '|', '\*', '`'], 'v:val . ''\%(\s\)\=''')
+function! s:_format_paragraph(para, width) abort
+  let lines = []
+  let para = a:para
+  while para !=# ''
+    " width +- 7  --> found break marks, break
+    let cont = 0
+    for i in [0] + s:L.flatten(map(range(7), '[v:val, -v:val]'))
+      if index(s:_break_chars, para[a:width + i - 1]) != -1
+        call add(lines, para[: a:width + i - 1])
+        " remove trailing space
+        if lines[-1] =~# '\s$'
+          let lines[-1] = lines[-1][: strlen(lines[-1]) - 2]
+        endif
+        let para = para[a:width + i :]
+        let cont = 1 | break
       endif
     endfor
+    if cont | continue | endif
 
-    return "Invalid value '" . a:value . "' for option " . a:name . '.'
-  endfunction
+    " -->  breaks
 
-  return validator.validate
+    if para[a:width - 1] =~# '\w'
+      call add(lines, para[: a:width - 2] . '-')
+      let para = para[a:width - 1:]
+    else
+      call add(lines, para[: a:width - 1])
+      let para = para[a:width:]
+    endif
+  endwhile
+  return lines
 endfunction
 
-function! s:_normalize_scopes(scopes) abort
+
+" }}}
+
+" Internal functions
+function! s:_type_to_list(type_like) abort  " {{{1
+  if type(a:type_like) == v:t_string
+    let stripped = substitute(a:type_like, '\_s\+', '', 'g')
+    return split(stripped, '|')
+  elseif type(a:type_like) == v:t_number
+    if !has_key(s:_num2type, a:type_like)
+      echoerr '[Options] Invalid type number.'
+      return
+    endif
+    return [s:_num2type[a:type_like]]
+  elseif type(a:type_like) == v:t_list
+    return map(copy(a:type_like), 's:_type_to_list(v:val)[0]')
+  else
+    echoerr '[Options] Invalid type specification.'
+    return
+  endif
+endfunction
+
+function! s:_format_type(type) abort  " {{{1
+  return join(a:type, ' | ')
+endfunction
+
+function! s:_normalize_scopes(scopes) abort  " {{{1
   let normalized = []
   for scope in s:_valid_scopes
     if index(a:scopes, scope) != -1
@@ -278,6 +396,7 @@ function! s:_normalize_scopes(scopes) abort
   endfor
   return normalized
 endfunction
+
 
 " modelines {{{1
 " vim: set fdm=marker

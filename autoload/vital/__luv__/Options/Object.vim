@@ -24,3 +24,16 @@ function! s:is_available(options, scope, name) abort
   return 1
 endfunction
 
+function! s:name(options, name) abort
+  return a:options.namespace . '.' . a:name
+endfunction
+
+function! s:format(options, scopes, name) abort
+  let scope_dicts = {'g': g:, 't': t:, 'w': w:, 'b': b:}
+  if len(a:scopes) == 1
+    return a:scopes[0] . ':' . a:options.namespace . '.' . a:name
+  else
+    return '[' . join(a:scopes, ',') . ']:' . a:options.namespace . '.' . a:name
+  endif
+endfunction
+

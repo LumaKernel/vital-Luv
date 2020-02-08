@@ -13,33 +13,53 @@ Describe Options
       call opts1.define('a1')
       Assert False(exists('g:' . ns1 . '_' . 'a1'))
       call opts1.define('a2', {})
-      call opts1.define('a3', {'default': 'val','scopes': 'gbwt'})
+      call opts1.define('a3', {'default': 'val','scopes': 'gbwt', 'doc': [
+            \   'This is a documentation about "a3". '
+            \   . 'You can write too long description in one line. '
+            \   . 'This plugin will automatically adding a newline.',
+            \   'You can also make a new line by yourself :)'
+            \ ]})
       Assert True(exists('g:' . ns1 . '_' . 'a3'))
       Assert Equals(g:[ns1 . '_' . 'a3'], 'val')
-      call opts1.define('a4', {'default': 'x1', 'validator': ['x1', 'x2'], 'scopes': 'gtw'})
-      call opts1.define('a5', {'default': 's1', 'validator': ['s1', 's2', 0, 1], 'scopes': 'wtg'})
+      call opts1.define('a4', {'default': 'x1', 'select': ['x1', 'x2'], 'scopes': 'gtw'})
+      call opts1.define('a5', {'default': 's1', 'select': ['s1', 's2', 0, 1], 'scopes': 'wtg'})
       call opts1.define('a6', {
            \   'default': 'sample.cpp',
-           \   'validator': { name, value -> (value =~# '\.cpp$' ? 0 : name . " must ends with '.cpp'.") }
+           \   'validator': { value -> (value =~# '\.cpp$' ? 0 : "It must end with '.cpp'.") }
            \ })
       
       call opts1.define('b1', {
            \   'default': 'bar',
            \   'no_declare_default': 1,
-           \   'validator': { name, value -> (type(value) =~# v:t_string ? 0: name . " must be string.") }
+           \   'validator': { value -> (type(value) =~# v:t_string ? 0: "It must be string.") }
            \ })
       Assert False(exists(ns1 . '_' . 'b1'))
       
-      call opts1.define('dep1', {'default': 'off', 'validator': ['on', 'off'], 'deprecated': 1})
-      call opts1.define('dep2', {'deprecated': 1, 'validator': ['op1', 'op2']})
+      call opts1.define('dep1', {'default': 'off', 'select': ['on', 'off'], 'deprecated': 1})
+      call opts1.define('dep2', {'deprecated': 1, 'select': ['op1', 'op2']})
+
+      call opts1.define('type1', {'default': 's1', 'scopes': 'g', 'type': 'string'})
+      call opts1.define('type2', {'default': 0, 'scopes': 'g', 'type': v:t_number})
+      call opts1.define('type3', {'default': 3.14, 'scopes': 'g', 'type': 'number | float'})
+      call opts1.define('type4', {'default': 0, 'scopes': 'g', 'type': [v:t_number, 'string']})
+
+      call opts1.define('no_set', {'scopes': 'g'})
+      call opts1.define('no_dec_def', {'no_declare_default': 1})
       
       call opts2.define('a1')
       
       Assert Equals(g:[ns1 . '_' . 'a4'], 'x1')
     End
     It throws errors when got illegal options
+      call opts1.define('dup', {'default': 'val'})
+      Throws /\cduplicate/ opts1.define('dup', {'default': 'val'})
+
       Throws /\cscope/ opts2.define('a2', {'default': 'val','scopes': 'abc'})
       Throws /\cglobal scope/ opts2.define('a2', {'default': 'val','scopes': 'b'})
+
+      Throws /\cmust be list/ opts2.define('a2', {'default': 'val','select': ''})
+
+      Throws /\cmust be function/ opts2.define('a2', {'default': 'val','validator': ''})
     End
   End
   
@@ -91,14 +111,27 @@ Describe Options
       Throws /\cinvalid type/ opts1.set('a1', {'value': 's1', 'scope': -1})
     End
     It throws when the validator fails
-      Throws /\cstring/ opts1.set('a4', {'value': 0})
+      Throws /\cselections are/ opts1.set('a4', {'value': 0})
       Throws /\cinvalid value/ opts1.set('a4', {'value': 'a'})
-      Throws /\C\[namespace_test_Options1\] Invalid value is set for option 'namespace_test_Options1\/a5'\./ opts1.set('a5', {'value': 'b'})
-      Throws /\cmust ends with/ opts1.set('a6', {'value': 'awesome.php'})
-      Throws /\cmust be string/ opts1.set('b1', {'value': 0})
+      Throws /\C\[namespace_test_Options1\/a5\] Invalid value 'b'\. Selections are / opts1.set('a5', {'value': 'b'})
+      Throws /\cit must end with/ opts1.set('a6', {'value': 'awesome.php'})
+      Throws /\cit must be string/ opts1.set('b1', {'value': 0})
+    End
+    It throws with illegal type
+      Throws /\ctype/ opts1.set('type1', {'value': 0})
+      Throws /\ctype/ opts1.set('type2', {'value': 'string'})
+      Throws /\ctype/ opts1.set('type3', {'value': 'yo'})
     End
   End
-  
+
+  Describe .is_set()
+    It returns wheter the option is set or not
+      Assert True(opts1.is_set('a1'))
+      Assert False(opts1.is_set('no_set'))
+      Assert False(opts1.is_set('no_dec_def'))
+    End
+  End
+
   Describe .set_default()
     It makes value default
       call opts1.set_default('a5')
@@ -150,6 +183,22 @@ Describe Options
     It can be used with .define_user_getter()
       Assert Equals(opts1.get('dep1'), 'off')
       Assert Equals(g:GetPluginOption('dep1'), 'off')
+    End
+  End
+
+  Describe .generate_document()
+    It creates a formatted document
+      let doc = opts1.generate_document()
+      Assert Equals(strlen(matchstr(doc[0], '^\t*')), 6)
+      Assert Equals(doc[1], 'g:namespace_test_Options1_a1')
+      Assert Equals(doc[2], '')
+      Assert Equals(strlen(matchstr(doc[3], '^\t*')), 6)
+      Assert Equals(doc[7], '[g,t,w,b]:namespace_test_Options1_a3')
+      Assert Equals(doc[8], "\tDefault : `'val'`")
+      Assert Equals(doc[9], '')
+      Assert Match(doc[10], '^\tThis is.*description$')
+
+      Assert Equals(len(doc), 65)
     End
   End
 End
