@@ -15,7 +15,7 @@ PROVIDER			|Vital.Options-Provider|
 
 
 ==============================================================================
-INTRODUCTION				*Vital.Config-introduction*
+INTRODUCTION				*Vital.Options-introduction*
 
 *Vital.Options* is a tool to define the vim plugin options
 and provide a user friendly setter/getter function that validates the
