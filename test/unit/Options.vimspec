@@ -104,6 +104,13 @@ Describe Options
       call opts1.set('a3', {'value': [1,2], 'scope': 'b'})
       Assert Equals(b:[ns1 . '_' . 'a3'], [1,2])
     End
+    It sets ALL scopes
+      call opts1.set('a3', {'value': 'xyz', 'scope': 'ALL'})
+      Assert Equals(g:[ns1 . '_' . 'a3'], 'xyz')
+      Assert Equals(t:[ns1 . '_' . 'a3'], 'xyz')
+      Assert Equals(w:[ns1 . '_' . 'a3'], 'xyz')
+      Assert Equals(b:[ns1 . '_' . 'a3'], 'xyz')
+    End
     It throws when got illegal scope
       Throws /\cinvalid scope/ opts1.set('a1', {'value': 's1', 'scope': 'b'})
       Throws /\cinvalid scope/ opts1.set('a1', {'value': 's1', 'scope': 'gab'})
@@ -122,13 +129,13 @@ Describe Options
       Throws /\ctype/ opts1.set('type2', {'value': 'string'})
       Throws /\ctype/ opts1.set('type3', {'value': 'yo'})
     End
-    It throws when got unkown name
+    It throws when got unknown name
       Throws /\cunknown option name/ opts1.set('none', {'value': 0})
     End
   End
 
   Describe .is_set()
-    It returns wheter the option is set or not
+    It returns whether the option is set or not
       Assert True(opts1.is_set('a1'))
       Assert False(opts1.is_set('no_set'))
       Assert False(opts1.is_set('no_dec_def'))
@@ -143,9 +150,33 @@ Describe Options
       call opts1.set_default('a4', { 'scope': 't' })
       Assert Equals(t:[ns1 . '_' . 'a4'], 'x1')
     End
+    It makes ALL scope value default
+      call opts1.set_default('a3',  {'scope': 'ALL'})
+      Assert Equals(g:[ns1 . '_' . 'a3'], 'val')
+      Assert Equals(t:[ns1 . '_' . 'a3'], 'val')
+      Assert Equals(w:[ns1 . '_' . 'a3'], 'val')
+      Assert Equals(b:[ns1 . '_' . 'a3'], 'val')
+
+      call opts1.set_default('a4', { 'scope': 't' })
+      Assert Equals(t:[ns1 . '_' . 'a4'], 'x1')
+    End
     It unset if the option has no default
       call opts1.set_default('a2')
       Assert False(exists('g:' . ns1 . '_' . 'a2'))
+    End
+  End
+  
+  Describe .unset()
+    It makes value empty
+      call opts1.unset('a5')
+      Assert False(exists('g:' . ns1 . '_' . 'a5'))
+    End
+    It makes ALL scope value empty
+      call opts1.unset('a3',  {'scope': 'ALL'})
+      Assert False(exists('g:' . ns1 . '_' . 'a3'))
+      Assert False(exists('w:' . ns1 . '_' . 'a3'))
+      Assert False(exists('t:' . ns1 . '_' . 'a3'))
+      Assert False(exists('b:' . ns1 . '_' . 'a3'))
     End
   End
   
@@ -169,7 +200,7 @@ Describe Options
       " from g:
       Assert Equals(opts1.get('a1'), 'piyo')
       " from default
-      Assert Equals(opts1.get('a3'), 'val')
+      Assert Equals(opts1.get('a3'), 'fuga')
       " from w: overwritting g:
       Assert Equals(opts1.get('a4'), 'x1')
     End
@@ -185,7 +216,7 @@ Describe Options
       Assert Equals(opts1.get('sc_gw'), 'g')
       Assert Equals(opts1.get('sc_bw'), 'b')
     End
-    It throws when got unkown option
+    It throws when got unknown option
       Throws /\cunknown option name/ opts1.get('none')
     End
     It throws when got unset option

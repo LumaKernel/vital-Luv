@@ -129,7 +129,7 @@ new({namespace}, {dict})
 		If set, the default value is not defined in global even if
 		{dict.default} is given.
 	  - {dict.scopes}
-	    	Default : {dict.scopes}[0]
+	    	Default : `'g'`
 	    	Type : string
 
 		The scopes that the user can specify. Ones of `gtwb` are
@@ -175,7 +175,7 @@ new({namespace}, {dict})
 	Unset the option {name}.
 	Below options can be set by dictionary {dict}.
 	 - {dict.scope}
-	   	Default: `'g'`
+	   	Default: {scopes}[0] defined by |Vital.Options-Namespace.define()|
 	   	Type: string
 
 		Scopes to unset. Multiple scopes are accepted like `'gw'`.
@@ -190,7 +190,7 @@ new({namespace}, {dict})
 
 	 	If omitted, the the value will be unset.
 	 - {dict.scope}
-	   	Default: `'g'`
+	   	Default: {scopes}[0] defined by |Vital.Options-Namespace.define()|
 	   	Type: string
 
 		Scopes to unset. Multiple scopes are accepted like `'gw'`.
@@ -201,7 +201,7 @@ new({namespace}, {dict})
 	Set the option {name} default.
 	Below options can be set by dictionary {dict}.
 	 - {dict.scope}
-	   	Default: `'g'`
+	   	Default: {scopes}[0] defined by |Vital.Options-Namespace.define()|
 	   	Type: string
 
 		Scopes to set. Multiple scopes are accepted like `'gw'`.
@@ -212,7 +212,7 @@ new({namespace}, {dict})
 	Set the option {name} to {value}.
 	You can define this in global by
 	|Vital.Options-Namespace.define_user_setter|
-	The default {scope} is `'g'`.
+	The default {scope} is {scopes}[0].
 
 						*Vital.Options-Namespace.user_get()*
 |Vital.Options-Namespace|.user_get({name})
