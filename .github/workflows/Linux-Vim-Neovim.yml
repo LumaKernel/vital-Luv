@@ -1,0 +1,73 @@
+name: Linux Vim/Neovim
+
+on:
+  push:
+    paths-ignore:
+    - 'docs/**'
+    - 'README.md'
+    branches:
+    - master
+    - ci
+
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        name:
+          - vim-v8.2
+          - vim-v8.1
+          - neovim-nightly
+          - neovim-nightly
+        include:
+          - name: vim-v8.2
+            vim-url: v8.2.0182/GVim-v8.2.0182.glibc2.15-x86_64.AppImage
+          - name: vim-v8.1
+            vim-url: v8.1.2414/GVim-v8.1.2414.glibc2.15-x86_64.AppImage
+          - name: neovim-nightly
+            neovim-version: nightly
+          - name: neovim-v0.4.3
+            neovim-version: v0.4.3
+
+    steps:
+    - name: Install Vim
+      if: startsWith(matrix.name, 'vim')
+      run: |
+        mkdir -p ~/vim/bin
+        curl -L https://github.com/vim/vim-appimage/releases/download/${{ matrix.vim-url }} -o ~/vim/bin/vim
+        chmod u+x ~/vim/bin/vim
+    - name: Install Neovim
+      if: startsWith(matrix.name, 'neovim')
+      shell: bash
+      run: |
+        mkdir -p ~/nvim/bin
+        curl -L https://github.com/neovim/neovim/releases/download/${{ matrix.neovim-version }}/nvim.appimage -o ~/nvim/bin/nvim
+        chmod u+x ~/nvim/bin/nvim
+    - name: Install vim-themis
+      run: git clone --depth 1 --branch v1.5.4 --single-branch https://github.com/thinca/vim-themis ~/themis
+
+    - uses: actions/checkout@v2
+
+    - name: Run test with Vim
+      if: startsWith(matrix.name, 'vim')
+      timeout-minutes: 10
+      run: |
+        export PATH=~/vim/bin:$PATH
+        export PATH=~/themis/bin:$PATH
+        export THEMIS_VIM=vim
+        vim --version
+        themis --version
+        themis
+
+    - name: Run test with Neovim
+      if: startsWith(matrix.name, 'neovim')
+      timeout-minutes: 10
+      run: |
+        export PATH=~/nvim/bin:$PATH
+        export PATH=~/themis/bin:$PATH
+        export THEMIS_VIM=nvim
+        nvim --version
+        themis --version
+        themis
