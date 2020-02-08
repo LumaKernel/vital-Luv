@@ -1,5 +1,5 @@
-![Linux Vim/neovim](https://github.com/LumaKernel/vital-Luv/workflows/Linux%20Vim/neovim/badge.svg)
-![Windows Vim/neovim](https://github.com/LumaKernel/vital-Luv/workflows/Windows%20Vim/neovim/badge.svg)
+[![Linux Vim/neovim](https://github.com/LumaKernel/vital-Luv/workflows/Linux%20Vim/neovim/badge.svg)](https://github.com/LumaKernel/vital-Luv/actions?query=workflow%3A%22Linux+Vim%2Fneovim%22)
+[![Windows Vim/neovim](https://github.com/LumaKernel/vital-Luv/workflows/Windows%20Vim/neovim/badge.svg)](https://github.com/LumaKernel/vital-Luv/actions?query=workflow%3A%22Windows+Vim%2Fneovim%22)
 
 Vital-Luv is my approaches to make a general plugins.
 
