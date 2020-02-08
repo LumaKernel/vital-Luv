@@ -2,8 +2,8 @@
 
 Author : Luma <tomorinao.info@gmail.com>
 License: Unlicense
-Support: Vim 8.1.0000 and Below
-Support: Neovim 0.4.3 and Below
+Support: Vim 8.0.0003 and Above
+Support: Neovim 0.2.0 and Above
 
 
 ==============================================================================
