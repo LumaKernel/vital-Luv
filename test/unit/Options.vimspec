@@ -247,8 +247,10 @@ Describe Options
       Assert Equals(doc[8], "\tDefault : `'val'`")
       Assert Equals(doc[9], '')
       Assert Match(doc[10], '^\tThis is.*description$')
+      Assert Equals(doc[54], "\tType : string")
+      Assert Equals(doc[74], "\tType : number | float")
 
-      Assert Equals(len(doc), 83)
+      Assert Equals(len(doc), 81)
     End
   End
 End

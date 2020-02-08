@@ -104,7 +104,6 @@ function! s:_options.define(name, ...) abort  " {{{1
     return
   endif
 
-  let formatted_type = ''
   if type isnot s:_NULL
     let type = s:_type_to_list(type)
     if formatted_type is s:_NULL
@@ -320,7 +319,7 @@ function s:_options.generate_document()  " {{{1
     if option.type isnot s:_NULL
       call add(res, "\t" . 'Type : ' . option.formatted_type)
     endif
-    if option.type isnot s:_NULL
+    if option.select isnot s:_NULL
       call add(res, "\t" . 'Selections : `' . string(option.select) . '`')
     endif
     if option.doc isnot s:_NULL
