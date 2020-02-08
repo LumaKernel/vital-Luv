@@ -1,7 +1,7 @@
 Describe Options/Sharp
   Before all
     let O = vital#vital#import('Options')
-    let ns1 = 'namespace_test_Options1'
+    let ns1 = 'namespace_test_Options_sharp'
     let opts1 = O.new(ns1, {'provider': '#'})
   End
 

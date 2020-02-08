@@ -17,15 +17,16 @@ jobs:
       fail-fast: false
       matrix:
         name:
-          - vim-v8.2_coq-V8.11
-          - vim-v8.2_coq-V8.6
+          - vim-v8.2
+          - vim-v8.0
           - neovim-nightly
           - neovim-v0.4.3
+          - neovim-v0.2.0
         include:
           - name: vim-v8.2
             vim-url: https://github.com/vim/vim-win32-installer/releases/download/v8.2.0230/gvim_8.2.0230_x64.zip
             vim-ver-path: vim82
-          - name: vim-v8.2
+          - name: vim-v8.0
             vim-url: https://github.com/vim/vim-win32-installer/releases/download/v8.0.0003/gvim_8.0.0003.zip
             vim-ver-path: vim82
           - name: neovim-nightly
