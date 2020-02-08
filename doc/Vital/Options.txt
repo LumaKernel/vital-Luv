@@ -269,7 +269,7 @@ Below are the defalt providers.
 `'-'` : It provides options via variable like {scope}:{namespace}_{name}
 
 					*Vital.Options-Provider#*
-`'#'` : It provides options via variable like {scope}:{namespace}_{name}
+`'#'` : It provides options via variable like {scope}:{namespace}#{name}
 
 					*Vital.Options-Provider-Object*
 `'object'` : It provides options via variable like {scope}:{namespace}.{name}
