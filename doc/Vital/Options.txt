@@ -1,7 +1,7 @@
 *Vital/Options.txt*		Define options and provide user friendly utils
 
 Author : Luma <tomorinao.info@gmail.com>
-License: Unlicense
+License: The Unlicense
 Support: Vim 8.0.0003 and Above
 Support: Neovim 0.2.0 and Above
 
@@ -53,7 +53,7 @@ It can also generate the formatted document about your plugin's options.
 	endfunc
 	
 	func! my#awesome#options#get(...)
-	    return call(s:Options.user_set, a:000)
+	    return call(s:Options.user_get, a:000)
 	endfunc
 	
 	" You should provide the port function for your plugin to get option
@@ -68,7 +68,7 @@ It can also generate the formatted document about your plugin's options.
 	call my#awesome#options#set('enable_at_startup', '1')
 	
 	call my#awesome#options#set('mode', 'new')
-	" -> got error like "[my_awesome_pluing/mode] Invalid value
+	" -> got error like "[my_awesome_plugin/mode] Invalid value
 	"   'new'. Selections are ['edit', 'split', 'vsplit']."
 	
 	" -----
@@ -248,7 +248,8 @@ new({namespace}, {dict})
 					*Vital.Options-Namespace.define_user_setter()*
 |Vital.Options-Namespace|.define_user_setter({funcname})
 	Defines *Vital.Options-Namespace.user_set()* in global.
-	You can prefix `'g:'` to {funcname}. You can't use this with |autoload-functions|.
+	You can prefix `'g:'` to {funcname}. You can't use this with
+	|autoload-functions|.
 	Note that the first character of global function must be capital.
 	Note that you should call autoload plugin from vim script in plugins
 	folder to ensure the existence.
@@ -256,7 +257,8 @@ new({namespace}, {dict})
 					*Vital.Options-Namespace.define_user_getter()*
 |Vital.Options-Namespace|.define_user_getter({funcname})
 	Defines *Vital.Options-Namespace.user_get()* in global.
-	You can prefix `'g:'` to {funcname}.
+	You can prefix `'g:'` to {funcname}. You can't use this with
+	|autoload-functions|.
 	Note that the first character of global function must be capital.
 	Note that you should call autoload plugin from vim script in plugins
 	folder to ensure the existence.
