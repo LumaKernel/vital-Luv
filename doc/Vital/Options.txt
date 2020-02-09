@@ -235,7 +235,7 @@ new({namespace}, {dict})
 	You can define this in global by
 	|Vital.Options-Namespace.define_user_getter()|.
 >
-	func! my#awesome#options#set(...)
+	func! my#awesome#options#get(...)
 	    return call(s:Options.user_get, a:000)
 	endfunc
 <
