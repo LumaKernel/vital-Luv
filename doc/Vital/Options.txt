@@ -45,7 +45,16 @@ It can also generate the formatted document about your plugin's options.
 	    \  'formatted_type': 'bool',
 	    \ })
 	
-	call s:Options.define_user_setter('my#awesome#options#set')
+	
+	" You should export functions for your plugin users
+	
+	func! my#awesome#options#set(...)
+	    call call(s:Options.user_set, a:000)
+	endfunc
+	
+	func! my#awesome#options#get(...)
+	    return call(s:Options.user_set, a:000)
+	endfunc
 	
 	" You should provide the port function for your plugin to get option
 	" value and ensure the options are defined.
@@ -61,7 +70,7 @@ It can also generate the formatted document about your plugin's options.
 	call my#awesome#options#set('mode', 'new')
 	" -> got error like "[my_awesome_pluing/mode] Invalid value
 	"   'new'. Selections are ['edit', 'split', 'vsplit']."
-
+	
 	" -----
 	
 	" You can make documents about options like this
@@ -72,7 +81,7 @@ It can also generate the formatted document about your plugin's options.
 =============================================================================
 FUNCTION 				*Vital.Options-function*
 
-						*Vital.Options.new()*
+					*Vital.Options.new()*
 new({namespace}, {dict})
 	Make instance of *Vital.Options-Namespace* . {namespace} is used to
 	determine the option variable prefix.
@@ -90,7 +99,7 @@ new({namespace}, {dict})
 		and how variables are shown in documents.
 		See |Vital.Options-Provider|.
 
-						*Vital.Options-Namespace.define()*
+					*Vital.Options-Namespace.define()*
 |Vital.Options-Namespace|.define({name}, {dict})
 	Defines a option {name}.
 	If {dict.default} are given, it sets the value in global.
@@ -156,12 +165,12 @@ new({namespace}, {dict})
 		to one line, but this inserts new line when the line exceeds
 		80 column.
 
-						*Vital.Options-Namespace.is_set()*
+					*Vital.Options-Namespace.is_set()*
 |Vital.Options-Namespace|.is_set({name})
 	The value of option {name} is available to be got or not.
 	Note that it always returns false when the default value is given.
 
-						*Vital.Options-Namespace.get()*
+					*Vital.Options-Namespace.get()*
 |Vital.Options-Namespace|.get({name}, {dict})
 	Defines a option {name}.
 	Below options can be set by dictionary {dict}.
@@ -170,18 +179,7 @@ new({namespace}, {dict})
 
 		If set, it returns the value like as the default value is this.
 
-						*Vital.Options-Namespace.unset()*
-|Vital.Options-Namespace|.unset({name}, {dict})
-	Unset the option {name}.
-	Below options can be set by dictionary {dict}.
-	 - {dict.scope}
-	   	Default: {scopes}[0] defined by |Vital.Options-Namespace.define()|
-	   	Type: string
-
-		Scopes to unset. Multiple scopes are accepted like `'gw'`.
-		`ALL` can be used to specify all available scopes.
-
-						*Vital.Options-Namespace.unset()*
+					*Vital.Options-Namespace.set()*
 |Vital.Options-Namespace|.set({name}, {dict})
 	Set the option {name}.
 	Below options can be set by dictionary {dict}.
@@ -193,10 +191,21 @@ new({namespace}, {dict})
 	   	Default: {scopes}[0] defined by |Vital.Options-Namespace.define()|
 	   	Type: string
 
+		Scopes to set. Multiple scopes are accepted like `'gw'`.
+		`ALL` can be used to specify all available scopes.
+
+					*Vital.Options-Namespace.unset()*
+|Vital.Options-Namespace|.unset({name}, {dict})
+	Unset the option {name}.
+	Below options can be set by dictionary {dict}.
+	 - {dict.scope}
+	   	Default: {scopes}[0] defined by |Vital.Options-Namespace.define()|
+	   	Type: string
+
 		Scopes to unset. Multiple scopes are accepted like `'gw'`.
 		`ALL` can be used to specify all available scopes.
 
-						*Vital.Options-Namespace.set_default()*
+					*Vital.Options-Namespace.set_default()*
 |Vital.Options-Namespace|.set_default({name}, {dict})
 	Set the option {name} default.
 	Below options can be set by dictionary {dict}.
@@ -207,45 +216,52 @@ new({namespace}, {dict})
 		Scopes to set. Multiple scopes are accepted like `'gw'`.
 		`ALL` can be used to specify all available scopes.
 
-						*Vital.Options-Namespace.user_set()*
+					*Vital.Options-Namespace.user_set()*
 |Vital.Options-Namespace|.user_set({name}, {value} [, {scope}])
 	Set the option {name} to {value}.
 	You can define this in global by
-	|Vital.Options-Namespace.define_user_setter|
-	The default {scope} is {scopes}[0].
+	|Vital.Options-Namespace.define_user_setter()|.
+	The default {scope} is {scopes}[0] that is defined by
+	|Vital.Options-Namespace.define()|.
+>
+	func! my#awesome#options#set(...)
+	    call call(s:Options.user_set, a:000)
+	endfunc
+<
 
-						*Vital.Options-Namespace.user_get()*
+					*Vital.Options-Namespace.user_get()*
 |Vital.Options-Namespace|.user_get({name})
 	Get the option {name}.
 	You can define this in global by
-	|Vital.Options-Namespace.define_user_getter|
+	|Vital.Options-Namespace.define_user_getter()|.
+>
+	func! my#awesome#options#set(...)
+	    return call(s:Options.user_get, a:000)
+	endfunc
+<
 
-						*Vital.Options-Namespace.user_unset()*
+					*Vital.Options-Namespace.user_unset()*
 |Vital.Options-Namespace|.user_unset({name})
 	Unset the option {name}.
 	You can define this in global by yourself.
 
-						*Vital.Options-Namespace.define_user_setter()*
+					*Vital.Options-Namespace.define_user_setter()*
 |Vital.Options-Namespace|.define_user_setter({funcname})
 	Defines *Vital.Options-Namespace.user_set()* in global.
-	You can prefix `'g:'` to {funcname}.
-	Note that the first character of global function must be capital if it
-	is not |autoload-functions|.
+	You can prefix `'g:'` to {funcname}. You can't use this with |autoload-functions|.
+	Note that the first character of global function must be capital.
 	Note that you should call autoload plugin from vim script in plugins
-	folder when you use global functions that is not autoload functions if
-	you packed options in autoload functions.
+	folder to ensure the existence.
 
-						*Vital.Options-Namespace.define_user_getter()*
+					*Vital.Options-Namespace.define_user_getter()*
 |Vital.Options-Namespace|.define_user_getter({funcname})
 	Defines *Vital.Options-Namespace.user_get()* in global.
 	You can prefix `'g:'` to {funcname}.
-	Note that the first character of global function must be capital if it
-	is not |autoload-functions|.
+	Note that the first character of global function must be capital.
 	Note that you should call autoload plugin from vim script in plugins
-	folder when you use global functions that is not autoload functions if
-	you packed options in autoload functions.
+	folder to ensure the existence.
 
-						*Vital.Options-Namespace.generate_document()*
+					*Vital.Options-Namespace.generate_document()*
 |Vital.Options-Namespace|.generate_document()
 	It returns the list of generated documents. Each element is assumed to
 	be corresponding to one line.
