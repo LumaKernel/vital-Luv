@@ -1,8 +1,8 @@
 
 function! s:_vital_loaded(V) abort
-  let s:Pormise = a:V.import('Async.Promise')
+  let s:Promise = a:V.import('Async.Promise')
 
-  " Just extend Async.Promise
+  " Just xtend Async.Promise
   for key in keys(s:Promise)
     if !has_key(s:, key)
       let s:[key] = s:Promise[key]
