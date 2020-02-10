@@ -1,10 +1,17 @@
 
 function! s:_vital_loaded(V) abort
-  let s:Pormise = a:V.import('Promise')
+  let s:Pormise = a:V.import('Async.Promise')
+
+  " Just extend Async.Promise
+  for key in keys(s:Promise)
+    if !has_key(s:, key)
+      let s:[key] = s:Promise[key]
+    endif
+  endfor
 endfunction
 function! s:_vital_depends() abort
   return [
-        \ 'Promise',
+        \ 'Async.Promise',
         \]
 endfunction
 
