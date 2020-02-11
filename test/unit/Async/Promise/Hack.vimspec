@@ -7,36 +7,46 @@ Describe Async.Promise.Hack
   End
 
   Describe .new()
-    It creates promise instance
+    It echos throwed error
       redir => mes
-        call Promise.new({resolve, reject -> reject('reject from new')}, 100)
-        silent! sleep 1s
+        call Promise.new({resolve, reject -> [execute("throw 'error from throw'"), 0][-1]}, 10)
+        sleep 200m
       redir END
       Assert Match(mes, '\CError detected while processing')
+      Assert Match(mes, '\cerror from throw')
+    End
+    It echos rejected error
+      redir => mes
+        call Promise.new({resolve, reject -> [reject('reject from new'), 0][-1]}, 10)
+        sleep 200m
+      redir END
       Assert Match(mes, '\creject from new')
     End
   End
 
   Describe .resolve()
-    It creates promise instance
+    It echos throwed error of invalid Ex command
+      function! s:_test() abort
+        _bar
+      endfunction
       redir => mes
-        call Promise.resolve('foo', 100)
-              \.then({->execute('_bar')})
-        sleep 1s
+        call Promise.resolve('foo', 10)
+              \.then({val -> s:_test()})
+              \.catch(Promise.get_default_error_handler())
+        sleep 200m
       redir END
       Assert Match(mes, '\CError detected while processing')
-      Assert Match(mes, '\c_bar')
+      Assert Match(mes, '\C_bar')
     End
   End
 
   Describe .reject()
-    It creates promise instance
+    It echos rejected error
       redir => mes
-        call Promise.reject('foo', 100)
-        sleep 1s
+        call Promise.reject('reject from Promise.reject()', 10)
+        sleep 200m
       redir END
-      Assert Match(mes, '\CError detected while processing')
-      Assert Match(mes, '\cfoo')
+      Assert Match(mes, '\Creject from Promise.reject()')
     End
   End
 

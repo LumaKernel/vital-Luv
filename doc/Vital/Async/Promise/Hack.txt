@@ -37,6 +37,14 @@ set_err_handler({handler})
 	error handler. The default handler is showing the exception in
 	|:echomsg|.
 
+			*Vital.Async.Promise.Hack.get_err_handler()*
+get_err_handler()
+	Get the handler that is set now.
+
+			*Vital.Async.Promise.Hack.get_default_err_handler()*
+get_default_err_handler()
+	Get the default handler. Useful for setting by yourself.
+
 			*Vital.Async.Promise.Hack.new()*
 			*Vital.Async.Promise.Hack.resolve()*
 			*Vital.Async.Promise.Hack.reject()*
@@ -48,8 +56,8 @@ reject([{value} [, {timeout} = 5000]])
 all({promises} [, {timeout} = 5000])
 race({promises} [, {timeout} = 5000])
 	Alternatives for |Vital.Async.Promise-functions|.
-	After {timeout} ms, this register
-	|Vital.Async.Promise-Promise.catch()| of the instance returned.
+	After {timeout} ms, this register the error handler by 
+	|Vital.Async.Promise-Promise.catch()|.
 
 			*Vital.Async.Promise.Hack.is_available()*
 			*Vital.Async.Promise.Hack.is_promise()*

@@ -89,6 +89,14 @@ function! s:set_error_handler(err_handler)
   endif
 endfunction
 
+function! s:get_error_handler()
+  return s:err_handler
+endfunction
+
+function! s:get_default_error_handler()
+  return function('s:_default_err_handler')
+endfunction
+
 function! s:_default_err_handler(ex) abort
   if type(a:ex) == v:t_dict && has_key(a:ex, 'throwpoint')
     let pat = '\C^\(.*\), line \(\d\+\)$'
@@ -98,26 +106,28 @@ function! s:_default_err_handler(ex) abort
       let groups = matchlist(a:ex.throwpoint, pat)
       let throwpoint = groups[1] . ':'
       let line = 'line ' . groups[2] . ':'
+    else
+      let throwpoint .=  ':'
     endif
     echohl ErrorMsg
-    echom 'Error detected while processing ' . throwpoint
+    echomsg 'Error detected while processing ' . throwpoint
     echohl None
     if line isnot v:null
-      echom line
+      echomsg line
     endif
     if has_key(a:ex, 'exception')
       echohl ErrorMsg
-      echom "<Promise Uncaught Exception> " . a:ex.exception
+      echomsg "<Promise Uncaught Exception> " . a:ex.exception
       if len(keys(a:ex)) > 2
-        echom "<Promise Uncaught> " . string(a:ex)
+        echomsg "<Promise Uncaught> " . string(a:ex)
       endif
       echohl None
     else
-      echom "<Promise Uncaught> " . string(a:ex)
+      echomsg "<Promise Uncaught> " . string(a:ex)
     endif
   else
     echohl ErrorMsg
-    echom '<Promise Uncaught>' . string(a:ex)
+    echomsg '<Promise Uncaught>' . string(a:ex)
     echohl None
   endif
 endfunction
