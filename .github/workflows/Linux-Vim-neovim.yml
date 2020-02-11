@@ -22,7 +22,7 @@ jobs:
           - vim-v8.2
           - vim-v8.1
           - neovim-nightly
-          - neovim-nightly
+          - neovim-v0.4.3
         include:
           - name: vim-v8.2
             vim-url: v8.2.0182/GVim-v8.2.0182.glibc2.15-x86_64.AppImage
