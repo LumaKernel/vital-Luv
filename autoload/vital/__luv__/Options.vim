@@ -69,7 +69,7 @@ function! s:_options.define(name, ...) abort  " {{{1
   let deprecated = get(opts, 'deprecated', 0)
   let Validator = get(opts, 'validator', s:_NULL)
   let select = get(opts, 'select', s:_NULL)
-  let no_declare_default = get(opts, 'no_declare_default', 0) || Default is s:_NULL
+  let no_define_default = get(opts, 'no_define_default', 0) || Default is s:_NULL
   let scopes = split(get(opts, 'scopes', 'g'), '\zs')
   let type = get(opts, 'type', s:_NULL)
   let formatted_type = get(opts, 'formatted_type', s:_NULL)
@@ -91,7 +91,7 @@ function! s:_options.define(name, ...) abort  " {{{1
     echoerr "[Options] 'validator' must be function."
   endif
 
-  if !no_declare_default
+  if !no_define_default
     call self.provider.set(self, 'g', a:name, Default)
   endif
 
@@ -130,7 +130,7 @@ endfunction
 
 function s:_options.get(name, ...)  " {{{1
   let opts = a:0 ? a:1 : {}
-  let default_ovewrite = get(opts, 'default_ovewrite', s:_NULL)
+  let default_overwrite = get(opts, 'default_overwrite', s:_NULL)
 
   let _ignore_unset = get(opts, '_ignore_unset', 0)
 
@@ -149,8 +149,8 @@ function s:_options.get(name, ...)  " {{{1
     endif
   endfor
 
-  if default_ovewrite isnot s:_NULL
-    return default_ovewrite
+  if default_overwrite isnot s:_NULL
+    return default_overwrite
   endif
   if option.default is s:_NULL && !_ignore_unset
     echoerr '[Options] Failed to get. The option has no default and is not set value.'
@@ -161,7 +161,7 @@ endfunction
 function s:_options.unset(name, ...) " {{{1
   let opts = a:0 ? copy(a:1) : {}
   let opts.value = s:_UNSET
-  call self.set(a:name, extend(opts, {opts.value}))
+  call self.set(a:name, opts)
 endfunction
 
 function s:_options.set_default(name, ...) " {{{1

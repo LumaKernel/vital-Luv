@@ -30,7 +30,7 @@ Describe Options
       
       call opts1.define('b1', {
            \   'default': 'bar',
-           \   'no_declare_default': 1,
+           \   'no_define_default': 1,
            \   'validator': { value -> (type(value) =~# v:t_string ? 0: "It must be string.") }
            \ })
       Assert False(exists('g:' . ns1 . '_' . 'b1'))
@@ -44,7 +44,7 @@ Describe Options
       call opts1.define('type4', {'default': 0, 'scopes': 'g', 'type': [v:t_number, 'string']})
 
       call opts1.define('no_set', {'scopes': 'g'})
-      call opts1.define('no_dec_def', {'no_declare_default': 1})
+      call opts1.define('no_dec_def', {'no_define_default': 1})
       
       call opts2.define('a1')
       
@@ -215,6 +215,14 @@ Describe Options
 
       Assert Equals(opts1.get('sc_gw'), 'g')
       Assert Equals(opts1.get('sc_bw'), 'b')
+    End
+    It is overwritten by given value
+      call opts2.define('overwritten1', {'default': 'foo', 'scopes': 'g', 'type': 'string'})
+      Assert Equals(opts2.get('overwritten1', {'default_overwrite': 'abc'}), 'foo')
+      call opts2.define('overwritten2', {'default': 'foo', 'no_define_default': 1, 'scopes': 'g', 'type': 'string'})
+      Assert Equals(opts2.get('overwritten2', {'default_overwrite': 'abc'}), 'abc')
+      call opts2.define('overwritten3', {'scopes': 'g', 'type': 'string'})
+      Assert Equals(opts2.get('overwritten3', {'default_overwrite': 'abc'}), 'abc')
     End
     It throws when got unknown option
       Throws /\cunknown option name/ opts1.get('none')

@@ -16,7 +16,7 @@ Describe Options/Object
 
     call opts1.define('b1', {
           \   'default': 'bar',
-          \   'no_declare_default': 1,
+          \   'no_define_default': 1,
           \ })
     Assert False(exists('g:' . ns1 . '_' . 'b1'))
     Assert False(has_key(g:[ns1], 'b1'))

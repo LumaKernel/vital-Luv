@@ -132,7 +132,7 @@ new({namespace}, {dict})
 		If set, the value is be checked whether it is one of this list
 		or not. Checking is |type()| checking followed by |expr-==#|
 		checking.
-	  - {dict.no_declare_default}
+	  - {dict.no_define_default}
 	    	Type : bool
 
 		If set, the default value is not defined in global even if
@@ -179,6 +179,8 @@ new({namespace}, {dict})
 	   	Type: any
 
 		If set, it returns the value like as the default value is this.
+		If you set the `default` value and not use `no_define_default`,
+		it may return the original value if no unset mannualy.
 
 					*Vital.Options-Namespace.set()*
 |Vital.Options-Namespace|.set({name}, {dict})
