@@ -142,9 +142,10 @@ new({namespace}, {dict})
 	    	Type : string
 
 		The scopes that the user can specify. Ones of `gtwb` are
-		available. This is corresponding to `g:`, `t:`, `w:`, `b:`, resp.
-		Scope checking for determing the value is searched from index 0
-		toward the last.
+		available. This is corresponding to `g:`, `t:`, `w:`, `b:`,
+		resp.
+		Scope checking for determining the value is searched from
+		index 0 toward the last.
 	  - {dict.type}
 		The types. You can specify the type string that appeared in
 		`v:t_*` variables ( |v:t_TYPE| ) like `string` or type number
@@ -247,7 +248,7 @@ new({namespace}, {dict})
 
 					*Vital.Options-Namespace.define_user_setter()*
 |Vital.Options-Namespace|.define_user_setter({funcname})
-	Defines *Vital.Options-Namespace.user_set()* in global.
+	Defines |Vital.Options-Namespace.user_set()| in global.
 	You can prefix `'g:'` to {funcname}. You can't use this with
 	|autoload-functions|.
 	Note that the first character of global function must be capital.
@@ -256,7 +257,7 @@ new({namespace}, {dict})
 
 					*Vital.Options-Namespace.define_user_getter()*
 |Vital.Options-Namespace|.define_user_getter({funcname})
-	Defines *Vital.Options-Namespace.user_get()* in global.
+	Defines |Vital.Options-Namespace.user_get()| in global.
 	You can prefix `'g:'` to {funcname}. You can't use this with
 	|autoload-functions|.
 	Note that the first character of global function must be capital.
