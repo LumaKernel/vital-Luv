@@ -51,6 +51,7 @@ endfunction  " }}}
 
 " member varialbles
 let s:_options.options = {}
+let s:_options.names = []
 
 " member functions
 function! s:_options.define_user_setter(funcname) abort  " {{{1
@@ -106,6 +107,7 @@ function! s:_options.define(name, ...) abort  " {{{1
     endif
   endif
 
+  call add(self.names, a:name)
   let self.options[a:name] = {
         \   'name': a:name,
         \   'scopes': scopes,
@@ -209,7 +211,7 @@ function s:_options.set(name, ...) abort  " {{{1
     let scope_to_set = split(scope, '\zs')
   endif
 
-  if option.deprecated isnot 0 && !_only_test && !_is_set
+  if option.deprecated isnot 0 && !_only_test
     let message = "Option '" . a:name . "' is deprecated."
     if type(option.deprecated) == v:t_string
       let message .= ' ' . option.deprecated
@@ -294,11 +296,18 @@ endfunction
 function s:_options.generate_document()  " {{{1
   " FIXME : Not supporting multibyte
   let res = []
-  for name in sort(keys(self.options))
+  for name in self.names
     let option = self.options[name]
     let tag = '*' . self.provider.name(self, name) . '*'
     call add(res, repeat("\t", min([10 - ((strlen(tag)+7)/8), 5])) . tag)
     call add(res, self.provider.format(self, reverse(copy(option.scopes)), name))
+    if option.deprecated isnot 0
+      let message = 'DEPRECATED'
+      if type(option.deprecated) == v:t_string
+        let message .= ' : ' . option.deprecated
+      endif
+      call add(res, "\t" . message)
+    endif
     if option.default isnot s:_NULL
       call add(res, "\t" . 'Default : `' . string(option.default) . '`')
     endif

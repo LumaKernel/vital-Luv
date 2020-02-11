@@ -112,10 +112,11 @@ new({namespace}, {dict})
 		|Vital.Options-Namespace.is_set()|.
 	  - {dict.deprecated}
 	    	Default : 0
-	    	Type : bool
+	    	Type : bool | string
 
 		If set, when the user set the value, this plugin tells
 		that the options is deprecated by |:echohl| and |:echomsg|.
+		If string, it is appended after the default messages.
 	  - {dict.validator}
 	    	Type : func
 
