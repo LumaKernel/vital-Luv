@@ -1,0 +1,26 @@
+name: Issue Manager
+
+on:
+  schedule:
+  - cron: "0 0 * * *"
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Issue Manager
+      uses: tiangolo/issue-manager@0.1.0
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        config: |
+          {
+            "close7day": {
+              "users": [
+                    "LumaKernel"
+                ],
+              "delay": 604800,
+              "message": "Closing after 7 days."
+            }
+          }
