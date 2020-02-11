@@ -145,7 +145,7 @@ new({namespace}, {dict})
 		available. This is corresponding to `g:`, `t:`, `w:`, `b:`,
 		resp.
 		Scope checking for determining the value is searched from
-		index 0 toward the last.
+		index last toward the first.
 	  - {dict.type}
 		The types. You can specify the type string that appeared in
 		`v:t_*` variables ( |v:t_TYPE| ) like `string` or type number

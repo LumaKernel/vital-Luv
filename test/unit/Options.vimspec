@@ -195,18 +195,29 @@ Describe Options
     End
   End
   
+  Describe .user_unset()
+    It sets options with user friendly interface
+      call opts2.define('user_unset', {'default': 'foo', 'scopes': 'gw'})
+      call opts2.user_set('user_unset', 'bar', 'w')
+      Assert Equals(opts2.user_get('user_unset'), 'bar')
+      call opts2.user_unset('user_unset', 'w')
+      Assert Equals(opts2.user_get('user_unset'), 'foo')
+    End
+  End
+  
   Describe .get()
     It returns a value set or default
       " from g:
       Assert Equals(opts1.get('a1'), 'piyo')
       " from default
-      Assert Equals(opts1.get('a3'), 'fuga')
+      call opts1.unset('a3', {'scope': 'ALL'})
+      Assert Equals(opts1.get('a3'), 'val')
       " from w: overwritting g:
-      Assert Equals(opts1.get('a4'), 'x1')
+      Assert Equals(opts1.get('a4'), 'x2')
     End
     It is affected by the order of scopes
-      call opts1.define('sc_gw', {'default': 'def', 'scopes': 'gw', 'type': 'string'})
-      call opts1.define('sc_bw', {'default': 'def', 'scopes': 'bw', 'type': 'string'})
+      call opts1.define('sc_gw', {'default': 'def', 'scopes': 'wg', 'type': 'string'})
+      call opts1.define('sc_bw', {'default': 'def', 'scopes': 'wb', 'type': 'string'})
       call opts1.set('sc_gw', {'value': 'g', 'scope': 'g'})
       call opts1.set('sc_gw', {'value': 'w', 'scope': 'w'})
 

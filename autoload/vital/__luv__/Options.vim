@@ -70,7 +70,7 @@ function! s:_options.define(name, ...) abort  " {{{1
   let Validator = get(opts, 'validator', s:_NULL)
   let select = get(opts, 'select', s:_NULL)
   let no_define_default = get(opts, 'no_define_default', 0) || Default is s:_NULL
-  let scopes = split(get(opts, 'scopes', 'g'), '\zs')
+  let scopes = reverse(split(get(opts, 'scopes', 'g'), '\zs'))
   let type = get(opts, 'type', s:_NULL)
   let formatted_type = get(opts, 'formatted_type', s:_NULL)
   let doc = get(opts, 'doc', s:_NULL)
@@ -200,7 +200,7 @@ function s:_options.set(name, ...) abort  " {{{1
   let scopes = option.scopes
 
   if scope is s:_NULL
-    let scope = scopes[0]
+    let scope = scopes[-1]
   endif
 
   if scope ==# 'ALL'
@@ -298,7 +298,7 @@ function s:_options.generate_document()  " {{{1
     let option = self.options[name]
     let tag = '*' . self.provider.name(self, name) . '*'
     call add(res, repeat("\t", min([10 - ((strlen(tag)+7)/8), 5])) . tag)
-    call add(res, self.provider.format(self, option.scopes, name))
+    call add(res, self.provider.format(self, reverse(copy(option.scopes)), name))
     if option.default isnot s:_NULL
       call add(res, "\t" . 'Default : `' . string(option.default) . '`')
     endif
