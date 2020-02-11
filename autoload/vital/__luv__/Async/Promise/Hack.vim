@@ -8,57 +8,29 @@ function! s:_vital_loaded(V) abort
   let s:Promise = a:V.import('Async.Promise')
 endfunction
 
-function! s:new(resolver, ...)
-  let timeout = a:0 ? a:1 : s:timeout
-  let promise = s:Promise.new(a:resolver)
-  if s:debug
-    call timer_start(timeout, {-> promise.catch(s:err_handler)})
-  endif
-  return s:_hack_then(promise)
+function! s:new(...)
+  return s:_hack_promise(call(s:Promise.new, a:000))
 endfunction
 
 function! s:resolve(...)
-  let value = a:0 ? a:1 : v:null
-  let timeout = a:0 > 1 ? a:2 : s:timeout
-  let promise = s:Promise.resolve(value)
-  if s:debug
-    call timer_start(timeout, {-> promise.catch(s:err_handler)})
-  endif
-  return s:_hack_then(promise)
+  return s:_hack_promise(call(s:Promise.resolve, a:000))
 endfunction
 
 function! s:reject(...)
-  let value = a:0 ? a:1 : v:null
-  let timeout = a:0 > 1 ? a:2 : s:timeout
-  let promise = s:Promise.reject(value)
-  if s:debug
-    call timer_start(timeout, {-> promise.catch(s:err_handler)})
-  endif
-  return s:_hack_then(promise)
+  return s:_hack_promise(call(s:Promise.reject, a:000))
 endfunction
 
-function! s:all(promises, ...)
-  let timeout = a:0 ? a:1 : s:timeout
-  let promise = s:Promise.all(a:promises)
-  if s:debug
-    call timer_start(timeout, {-> promise.catch(s:err_handler)})
-  endif
-  return s:_hack_then(promise)
+function! s:all(...)
+  return s:_hack_promise(call(s:Promise.all, a:000))
+endfunction
+
+function! s:race(...)
+  return s:_hack_promise(call(s:Promise.race, a:000))
 endfunction
 
 
 " XXX : If vital supports `extend` feature,
 "       below must be replaced to that.
-function! s:race(promises, ...)
-  let value = a:0 ? a:1 : v:null
-  let timeout = a:0 > 1 ? a:2 : s:timeout
-  let promise = s:Promise.race(a:promises)
-  if s:debug
-    call timer_start(timeout, {-> promise.catch(s:err_handler)})
-  endif
-  return s:_hack_then(promise)
-endfunction
-
 function! s:is_available(...) abort
   return call(Promise.is_available, a:000)
 endfunction
@@ -76,10 +48,15 @@ function! s:noop(...) abort
 endfunction
 
 
+let s:debug = 0
 function! s:set_debug(debug)
   let s:debug = a:debug
 endfunction
-let s:debug = 0
+
+let s:timeout = 5000
+function! s:set_timeout(timeout)
+  let s:timeout = a:timeout
+endfunction
 
 function! s:set_error_handler(err_handler)
   if err_handler is v:t_func
@@ -87,11 +64,6 @@ function! s:set_error_handler(err_handler)
   else
     let s:err_handler = function('s:_default_err_handler')
   endif
-endfunction
-
-let s:timeout = 5000
-function! s:set_timeout(timeout)
-  let s:timeout = a:timeout
 endfunction
 
 function! s:get_default_error_handler()
@@ -118,35 +90,43 @@ function! s:_default_err_handler(ex) abort
     endif
     if has_key(a:ex, 'exception')
       echohl ErrorMsg
-      echomsg "<Promise Uncaught Exception> " . a:ex.exception
+      echomsg '<Promise Uncaught Exception> ' . a:ex.exception
       echohl None
       if len(keys(a:ex)) > 2
         echohl ErrorMsg
-        echomsg "<Promise Uncaught> " . string(a:ex)
+        echomsg '<Promise Uncaught> ' . string(a:ex)
         echohl None
       endif
     else
       echohl ErrorMsg
-      echomsg "<Promise Uncaught> " . string(a:ex)
+      echomsg '<Promise Uncaught> ' . string(a:ex)
       echohl None
     endif
   else
     echohl ErrorMsg
-    echomsg '<Promise Uncaught>' . string(a:ex)
+    echomsg '<Promise Uncaught> ' . string(a:ex)
     echohl None
   endif
 endfunction
-
 let s:err_handler = function('s:_default_err_handler')
 
-function! s:_hack_then(promise) abort
-  " let orig = a:promise.then
-  " function! a:promise.then(...) abort closure
-  "   if s:debug
-  "     call timer_start(s:timeout, {-> a:promise.catch(s:err_handler)})
-  "   endif
-  "   return s:_hack_then(call(orig, a:000))
-  " endfunction
-  return promise
+function! s:_hack_promise(promise) abort
+  if s:debug
+    let timer_id = timer_start(s:timeout, {-> a:promise.catch(s:err_handler)})
+  endif
+  
+  let Orig_then = a:promise.then
+  function! a:promise.then(...) abort closure
+    let promise = call(Orig_then, a:000)
+    if s:debug && get(a:000, 0, v:null) isnot v:null
+      let promise = s:_hack_promise(promise)
+    endif
+    if exists('timer_id') && get(a:000, 1, v:null) isnot v:null
+      call timer_stop(timer_id)
+    endif
+    return promise
+  endfunction
+  
+  return a:promise
 endfunction
 

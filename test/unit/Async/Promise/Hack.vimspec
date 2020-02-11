@@ -5,7 +5,7 @@ Describe Async.Promise.Hack
     let Promise = vital#vital#import('Async.Promise.Hack')
     let E = Promise.get_default_error_handler()
     call Promise.set_debug(1)
-    call Promise.set_timeout(10)
+    call Promise.set_timeout(1)
   End
 
   Describe .new()
@@ -16,6 +16,8 @@ Describe Async.Promise.Hack
       redir END
       Assert Match(mes, '\CError detected while processing')
       Assert Match(mes, '\cerror from throw')
+      " Check called just once
+      Assert NotMatch(mes, repeat('\CError detected while processing.*', 2))
     End
     It echos rejected error
       redir => mes
@@ -23,6 +25,19 @@ Describe Async.Promise.Hack
         sleep 200m
       redir END
       Assert Match(mes, '\creject from new')
+      " Check called just once
+      Assert NotMatch(mes, repeat('\creject from new.*', 2))
+    End
+    It not block .catch by user
+      let handled_myself = 0
+      redir => mes
+        call Promise.new({resolve, reject -> [execute("throw 'error from throw'"), 0][-1]})
+              \.catch({-> [handled_myself, execute('let handled_myself = 1')]})
+        sleep 200m
+      redir END
+      Assert NotMatch(mes, '\CError detected while processing')
+      Assert NotMatch(mes, '\cerror from throw')
+      Assert Equals(handled_myself, 1)
     End
   End
 
@@ -38,6 +53,8 @@ Describe Async.Promise.Hack
       redir END
       Assert Match(mes, '\CError detected while processing')
       Assert Match(mes, '\C_bar')
+      " Check called just once
+      Assert NotMatch(mes, repeat('\CError detected while processing.*', 2))
     End
   End
 
@@ -48,6 +65,8 @@ Describe Async.Promise.Hack
         sleep 200m
       redir END
       Assert Match(mes, '\Creject from Promise.reject()')
+      " Check called just once
+      Assert NotMatch(mes, repeat('\Creject from Promise.reject().*', 2))
     End
   End
 
@@ -61,6 +80,8 @@ Describe Async.Promise.Hack
       redir END
       Assert Match(mes, '\CError detected while processing')
       Assert Match(mes, '\C_bar')
+      " Check called once
+      Assert NotMatch(mes, repeat('\C_bar.*', 2))
     End
   End
 
