@@ -23,5 +23,10 @@ Describe Options/Sharp
 
     call opts1.set('a2', {'value': 'x', 'scope': 'w'})
     Assert Equals(w:[ns1 . '#' . 'a2'], 'x')
+    Assert Equals(opts1.get('a2'), 'x')
+
+    let doc = join(opts1.generate_document(), "\n")
+    Assert Match(doc, ns1 . '#a1')
+    Assert Match(doc, ns1 . '#a2')
   End
 End
