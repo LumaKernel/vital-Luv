@@ -1,5 +1,10 @@
 set encoding=utf-8
 
+if $THEMIS_PROFILE !=# ''
+  exe 'profile start' $THEMIS_PROFILE
+  profile! file ./autoload/*
+endif
+
 try
   language message C
 catch

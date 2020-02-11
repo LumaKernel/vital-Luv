@@ -41,6 +41,17 @@ Describe Async.Promise.Hack
         " Check called just once
         Assert NotMatch(mes, repeat('\CError detected while processing.*', 2))
       End
+      It is the case throwpoint and exception is string
+        redir => mes
+          call Promise.new({resolve, reject -> reject({'throwpoint': '', 'exception': '', 'val': 1})})
+          sleep 200m
+        redir END
+        Assert Match(mes, '\CError detected while processing')
+        Assert Match(mes, '\C''val'': 1')
+        Assert Match(mes, '\C<Promise Uncaught> ')
+        " Check called just once
+        Assert NotMatch(mes, repeat('\CError detected while processing.*', 2))
+      End
     End
     It echos rejected error
       redir => mes
@@ -104,6 +115,33 @@ Describe Async.Promise.Hack
     End
   End
 
+  Describe .set_error_handler()
+    It can set handler
+      function! s:handler(ex) abort
+        echomsg string(a:ex)
+      endfunction
+      call Promise.set_error_handler(function('s:handler'))
+      redir => mes
+        call Promise.reject('error from reject')
+        sleep 200m
+      redir END
+      Assert Match(mes, '\Cerror from reject')
+      " Check called once
+      Assert NotMatch(mes, repeat('\Cerror from reject.*', 2))
+
+      " Make handler default
+      call Promise.set_error_handler(v:null)
+      redir => mes
+        call Promise.reject('error from reject')
+        sleep 200m
+      redir END
+      Assert Match(mes, '\Cerror from reject')
+
+      " Check called once
+      Assert NotMatch(mes, repeat('\Cerror from reject.*', 2))
+    End
+  End
+
   Describe .get_default_error_handler()
     It provides useful error handler
       redir => mes
@@ -118,7 +156,6 @@ Describe Async.Promise.Hack
       Assert NotMatch(mes, repeat('\C_bar.*', 2))
     End
   End
-
 
   It extends promise features
     for key in keys(Promise0)

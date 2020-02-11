@@ -16,12 +16,20 @@ Describe Options/Sharp
 
     call opts1.define('b1', {
           \   'default': 'bar',
-          \   'no_declare_default': 1,
+          \   'no_define_default': 1,
           \ })
     Assert False(exists('g:' . ns1 . '_' . 'b1'))
     Assert False(exists('g:' . ns1 . '#' . 'b1'))
 
     call opts1.set('a2', {'value': 'x', 'scope': 'w'})
     Assert Equals(w:[ns1 . '#' . 'a2'], 'x')
+    Assert Equals(opts1.get('a2'), 'x')
+
+    call opts1.user_unset('a2', 'ALL')
+    Assert Equals(opts1.get('a2'), 'val')
+
+    let doc = join(opts1.generate_document(), "\n")
+    Assert Match(doc, ns1 . '#a1')
+    Assert Match(doc, ns1 . '#a2')
   End
 End

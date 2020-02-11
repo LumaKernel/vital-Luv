@@ -30,13 +30,13 @@ Describe Options
       
       call opts1.define('b1', {
            \   'default': 'bar',
-           \   'no_declare_default': 1,
+           \   'no_define_default': 1,
            \   'validator': { value -> (type(value) =~# v:t_string ? 0: "It must be string.") }
            \ })
       Assert False(exists('g:' . ns1 . '_' . 'b1'))
       
       call opts1.define('dep1', {'default': 'off', 'select': ['on', 'off'], 'deprecated': 1})
-      call opts1.define('dep2', {'deprecated': 1, 'select': ['op1', 'op2']})
+      call opts1.define('dep2', {'deprecated': 'This is too old.', 'select': ['op1', 'op2']})
 
       call opts1.define('type1', {'default': 's1', 'scopes': 'g', 'type': 'string'})
       call opts1.define('type2', {'default': 0, 'scopes': 'g', 'type': v:t_number})
@@ -44,7 +44,7 @@ Describe Options
       call opts1.define('type4', {'default': 0, 'scopes': 'g', 'type': [v:t_number, 'string']})
 
       call opts1.define('no_set', {'scopes': 'g'})
-      call opts1.define('no_dec_def', {'no_declare_default': 1})
+      call opts1.define('no_dec_def', {'no_define_default': 1})
       
       call opts2.define('a1')
       
@@ -130,7 +130,16 @@ Describe Options
       Throws /\ctype/ opts1.set('type3', {'value': 'yo'})
     End
     It throws when got unknown name
+      Throws /\cinvalid type/ opts1.set(999, {'value': 0})
       Throws /\cunknown option name/ opts1.set('none', {'value': 0})
+    End
+    It warns when using deprecated optoins
+      redir => mes
+        call opts1.user_set('dep1', 'on')
+        call opts1.user_set('dep2', 'op2')
+      redir END
+      Assert Match(mes, "Option 'dep1' is deprecated.")
+      Assert Match(mes, "Option 'dep2' is deprecated. This is too old.")
     End
   End
 
@@ -195,18 +204,29 @@ Describe Options
     End
   End
   
+  Describe .user_unset()
+    It sets options with user friendly interface
+      call opts2.define('user_unset', {'default': 'foo', 'scopes': 'gw'})
+      call opts2.user_set('user_unset', 'bar', 'w')
+      Assert Equals(opts2.user_get('user_unset'), 'bar')
+      call opts2.user_unset('user_unset', 'w')
+      Assert Equals(opts2.user_get('user_unset'), 'foo')
+    End
+  End
+  
   Describe .get()
     It returns a value set or default
       " from g:
       Assert Equals(opts1.get('a1'), 'piyo')
       " from default
-      Assert Equals(opts1.get('a3'), 'fuga')
+      call opts1.unset('a3', {'scope': 'ALL'})
+      Assert Equals(opts1.get('a3'), 'val')
       " from w: overwritting g:
-      Assert Equals(opts1.get('a4'), 'x1')
+      Assert Equals(opts1.get('a4'), 'x2')
     End
     It is affected by the order of scopes
-      call opts1.define('sc_gw', {'default': 'def', 'scopes': 'gw', 'type': 'string'})
-      call opts1.define('sc_bw', {'default': 'def', 'scopes': 'bw', 'type': 'string'})
+      call opts1.define('sc_gw', {'default': 'def', 'scopes': 'wg', 'type': 'string'})
+      call opts1.define('sc_bw', {'default': 'def', 'scopes': 'wb', 'type': 'string'})
       call opts1.set('sc_gw', {'value': 'g', 'scope': 'g'})
       call opts1.set('sc_gw', {'value': 'w', 'scope': 'w'})
 
@@ -215,6 +235,14 @@ Describe Options
 
       Assert Equals(opts1.get('sc_gw'), 'g')
       Assert Equals(opts1.get('sc_bw'), 'b')
+    End
+    It is overwritten by given value
+      call opts2.define('overwritten1', {'default': 'foo', 'scopes': 'g', 'type': 'string'})
+      Assert Equals(opts2.get('overwritten1', {'default_overwrite': 'abc'}), 'foo')
+      call opts2.define('overwritten2', {'default': 'foo', 'no_define_default': 1, 'scopes': 'g', 'type': 'string'})
+      Assert Equals(opts2.get('overwritten2', {'default_overwrite': 'abc'}), 'abc')
+      call opts2.define('overwritten3', {'scopes': 'g', 'type': 'string'})
+      Assert Equals(opts2.get('overwritten3', {'default_overwrite': 'abc'}), 'abc')
     End
     It throws when got unknown option
       Throws /\cunknown option name/ opts1.get('none')
@@ -230,8 +258,8 @@ Describe Options
       Assert Equals(opts1.user_get('a6'), 'sample.cpp')
     End
     It can be used with .define_user_getter()
-      Assert Equals(opts1.get('dep1'), 'off')
-      Assert Equals(g:GetPluginOption('dep1'), 'off')
+      Assert Equals(opts1.get('dep1'), 'on')
+      Assert Equals(g:GetPluginOption('dep1'), 'on')
     End
   End
 
@@ -239,6 +267,7 @@ Describe Options
     It creates a formatted document
       let doc = opts1.generate_document()
       call writefile(doc + ['vim:tw=78:ts=8:noet:ft=help:norl:cole=2'], '.dev/doctest.txt')
+
       Assert Equals(strlen(matchstr(doc[0], '^\t*')), 5)
       Assert Equals(doc[1], 'g:namespace_test_Options1_a1')
       Assert Equals(doc[2], '')
@@ -246,11 +275,14 @@ Describe Options
       Assert Equals(doc[7], '[g,b,w,t]:namespace_test_Options1_a3')
       Assert Equals(doc[8], "\tDefault : `'val'`")
       Assert Equals(doc[9], '')
-      Assert Match(doc[10], '^\tThis is.*description$')
-      Assert Equals(doc[54], "\tType : string")
-      Assert Equals(doc[74], "\tType : number | float")
+      Assert Match(doc[10], '\CThis is.*description$')
+      Assert Equals(doc[34], "\tDEPRECATED")
+      Assert Equals(doc[40], "\tDEPRECATED : This is too old.")
+      Assert Equals(doc[46], "\tType : string")
+      Assert Equals(doc[56], "\tType : number | float")
 
-      Assert Equals(len(doc), 81)
+      " You should check .dev/doctest.txt before updating this.
+      Assert Equals(len(doc), 83)
     End
   End
 End
