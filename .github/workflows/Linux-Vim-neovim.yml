@@ -33,6 +33,9 @@ jobs:
           - name: neovim-v0.4.3
             neovim-version: v0.4.3
 
+    env:
+      THEMIS_PROFILE: vim-profile.txt
+
     steps:
     - name: Install Vim
       if: startsWith(matrix.name, 'vim')
@@ -73,3 +76,16 @@ jobs:
         nvim --version
         themis --version
         themis
+
+    - name: Make coverage report
+      run: |
+        pip install coverage --user
+        pip install covimerage --user
+        python -m covimerage write_coverage vim-profile.txt
+        python -m coverage xml
+
+    - uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }} #required
+        fail_ci_if_error: false #optional (default = false)
+

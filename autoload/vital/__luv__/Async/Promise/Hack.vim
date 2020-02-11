@@ -59,7 +59,7 @@ function! s:set_timeout(timeout)
 endfunction
 
 function! s:set_error_handler(err_handler)
-  if err_handler is v:t_func
+  if type(a:err_handler) == v:t_func
     let s:err_handler = a:err_handler
   else
     let s:err_handler = function('s:_default_err_handler')

@@ -77,22 +77,18 @@ function! s:_options.define(name, ...) abort  " {{{1
 
   if matchstr(join(scopes, ''), '[^gtwb]') !=# ''
     echoerr "[Options] Each scopes should be oen of '" . string(s:_valid_scopes) . "'."
-    return
   endif
 
   if len(scopes) == 0
     echoerr '[Options] Scopes cannot be empty'
-    return
   endif
 
   if select isnot s:_NULL && type(select) != v:t_list
     echoerr "[Options] 'select' must be list."
-    return
   endif
 
   if Validator isnot s:_NULL && type(Validator) != v:t_func
     echoerr "[Options] 'validator' must be function."
-    return
   endif
 
   if !no_declare_default
@@ -101,7 +97,6 @@ function! s:_options.define(name, ...) abort  " {{{1
 
   if has_key(self.options, a:name)
     echoerr "[Options] Option '" . a:name . "' duplicates."
-    return
   endif
 
   if type isnot s:_NULL
@@ -143,7 +138,6 @@ function s:_options.get(name, ...)  " {{{1
 
   if !has_key(self.options, a:name)
     echoerr reporter . "Unknown option name '" . a:name . "'"
-    return
   endif
 
   let option = self.options[a:name]
@@ -160,7 +154,6 @@ function s:_options.get(name, ...)  " {{{1
   endif
   if option.default is s:_NULL && !_ignore_unset
     echoerr '[Options] Failed to get. The option has no default and is not set value.'
-    return
   endif
   return option.default
 endfunction
@@ -177,7 +170,7 @@ function s:_options.set_default(name, ...) " {{{1
   call self.set(a:name, opts)
 endfunction
 
-function s:_options.set(name, ...)  " {{{1
+function s:_options.set(name, ...) abort  " {{{1
   let opts = a:0 ? a:1 : {}
   let value = get(opts, 'value', s:_NULL)
   let scope = get(opts, 'scope', s:_NULL)
@@ -188,18 +181,15 @@ function s:_options.set(name, ...)  " {{{1
   if type(scope) != v:t_string && scope isnot s:_NULL
     echoerr reporter . 'Invalid type of scope. ' .
           \ 'Only string is accepted.'
-    return
   endif
 
   if type(a:name) != v:t_string
     echoerr reporter . 'Invalid type of option name. ' .
           \ 'Only string names are accepted.'
-    return
   endif
 
   if !has_key(self.options, a:name)
     echoerr reporter . "Unknown option name '" . a:name . "'"
-    return
   endif
 
   " From here, a:name was found to be valid.
@@ -243,7 +233,6 @@ function s:_options.set(name, ...)  " {{{1
     if index(scopes, scope1) == -1
       echoerr reporter . "Invalid scope specification '" . scope . "'. " .
             \ 'Use ones of [' . join(scopes, ', ') . ']'
-      return
     endif
   endfor
 
@@ -254,7 +243,6 @@ function s:_options.set(name, ...)  " {{{1
       if index(option.type, get(s:_num2type, type(value), 0)) == -1
         echoerr reporter . 'Invalid type of value. ' .
               \ "Type must be '" . option.formatted_type . "'."
-        return
       endif
     endif
 
@@ -268,7 +256,6 @@ function s:_options.set(name, ...)  " {{{1
       if !found
         echoerr reporter . 'Invalid value ' . string(value) . '. ' .
               \ 'Selections are ' . string(option.select) . ' .'
-        return
       endif
     endif
 
@@ -276,7 +263,6 @@ function s:_options.set(name, ...)  " {{{1
       let err = option.validator(value)
       if err isnot 0
         echoerr reporter . err
-        return
       endif
     endif
   endif
@@ -381,14 +367,12 @@ function! s:_type_to_list(type_like) abort  " {{{1
   elseif type(a:type_like) == v:t_number
     if !has_key(s:_num2type, a:type_like)
       echoerr '[Options] Invalid type number.'
-      return
     endif
     return [s:_num2type[a:type_like]]
   elseif type(a:type_like) == v:t_list
     return map(copy(a:type_like), 's:_type_to_list(v:val)[0]')
   else
     echoerr '[Options] Invalid type specification.'
-    return
   endif
 endfunction
 
