@@ -281,6 +281,7 @@ Describe Options
       Assert Equals(doc[46], "\tType : string")
       Assert Equals(doc[56], "\tType : number | float")
 
+      " You should check .dev/doctest.txt before updating this.
       Assert Equals(len(doc), 83)
     End
   End
