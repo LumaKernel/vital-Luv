@@ -159,13 +159,13 @@ function s:_options.get(name, ...)  " {{{1
 endfunction
 
 function s:_options.unset(name, ...) " {{{1
-  let opts = a:0 ? a:1 : {}
+  let opts = a:0 ? copy(a:1) : {}
   let opts.value = s:_UNSET
-  call self.set(a:name, opts)
+  call self.set(a:name, extend(opts, {opts.value}))
 endfunction
 
 function s:_options.set_default(name, ...) " {{{1
-  let opts = a:0 ? a:1 : {}
+  let opts = a:0 ? copy(a:1) : {}
   let opts.value = s:_NULL
   call self.set(a:name, opts)
 endfunction
