@@ -10,7 +10,7 @@ Support: neovim 0.4.3 and Above
 CONTENTS				*Vital.Async.Promise.Hack-contents*
 
 INTRODUCTION			|Vital.Async.Promise.Hack-introduction|
-FUNCTION			|Vital.Async.Promise.Hack-function|
+FUNCTIONS			|Vital.Async.Promise.Hack-functions|
 
 
 ==============================================================================
@@ -25,13 +25,7 @@ This is the one-liner Ex command to replace your imports.
 <
 
 ==============================================================================
-FUNCTION 				*Vital.Async.Promise.Hack-function*
-
-			*Vital.Async.Promise.Hack.new()*
-new({executor} [, {timeout} = 5000] )
-	Alternative for |Vital.Async.Promise.new()|.
-	After {timeout} ms, this register
-	|Vital.Async.Promise-Promise.catch()| of the instance returned.
+FUNCTIONS 				*Vital.Async.Promise.Hack-functions*
 
 			*Vital.Async.Promise.Hack.set_debug()*
 set_debug({debug})
@@ -42,6 +36,24 @@ set_err_handler({handler})
 	Set the handler for error handling. Set |v:null| to use the default
 	error handler. The default handler is showing the exception in
 	|:echomsg|.
+
+			*Vital.Async.Promise.Hack.new()*
+			*Vital.Async.Promise.Hack.resolve()*
+			*Vital.Async.Promise.Hack.reject()*
+			*Vital.Async.Promise.Hack.all()*
+			*Vital.Async.Promise.Hack.race()*
+new({executor} [, {timeout} = 5000])
+resolve([{value} [, {timeout} = 5000]])
+reject([{value} [, {timeout} = 5000]])
+all({promises} [, {timeout} = 5000])
+race({promises} [, {timeout} = 5000])
+	Alternatives for |Vital.Async.Promise-functions|.
+	After {timeout} ms, this register
+	|Vital.Async.Promise-Promise.catch()| of the instance returned.
+
+			*Vital.Async.Promise.Hack.is_available()*
+			*Vital.Async.Promise.Hack.is_promise()*
+	Copies from |Vital.Async.Promise-functions|.
 
 ==============================================================================
 vim:tw=78:ts=8:noet:ft=help:norl

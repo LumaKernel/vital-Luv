@@ -1,0 +1,52 @@
+
+Describe Async.Promise.Hack
+  Before all
+    let Promise0 = vital#vital#import('Async.Promise')
+    let Promise = vital#vital#import('Async.Promise.Hack')
+    call Promise.set_debug(1)
+  End
+
+  Describe .new()
+    It creates promise instance
+      redir => mes
+        call Promise.new({resolve, reject -> reject('reject from new')}, 100)
+        silent! sleep 1s
+      redir END
+      Assert Match(mes, '\CError detected while processing')
+      Assert Match(mes, '\creject from new')
+    End
+  End
+
+  Describe .resolve()
+    It creates promise instance
+      redir => mes
+        call Promise.resolve('foo', 100)
+              \.then({->execute('_bar')})
+        sleep 1s
+      redir END
+      Assert Match(mes, '\CError detected while processing')
+      Assert Match(mes, '\c_bar')
+    End
+  End
+
+  Describe .reject()
+    It creates promise instance
+      redir => mes
+        call Promise.reject('foo', 100)
+        sleep 1s
+      redir END
+      Assert Match(mes, '\CError detected while processing')
+      Assert Match(mes, '\cfoo')
+    End
+  End
+
+  It extends promise features
+    for key in keys(Promise0)
+      if type(Promise0[key]) == v:t_func
+        call themis#log(key)
+        Assert True(has_key(Promise, key))
+      endif
+    endfor
+  End
+End
+

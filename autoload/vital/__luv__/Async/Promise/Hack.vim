@@ -1,28 +1,80 @@
 
-function! s:_vital_loaded(V) abort
-  let s:Promise = a:V.import('Async.Promise')
-
-  " Just xtend Async.Promise
-  for key in keys(s:Promise)
-    if !has_key(s:, key)
-      let s:[key] = s:Promise[key]
-    endif
-  endfor
-endfunction
 function! s:_vital_depends() abort
   return [
-        \ 'Async.Promise',
-        \]
+        \   'Async.Promise',
+        \ ]
+endfunction
+function! s:_vital_loaded(V) abort
+  let s:Promise = a:V.import('Async.Promise')
 endfunction
 
 function! s:new(resolver, ...)
   let timeout = a:0 ? a:1 : 5000
-  let promise = s:Promise.new(resolver)
+  let promise = s:Promise.new(a:resolver)
   if s:debug
     call timer_start(timeout, {-> promise.catch(s:err_handler)})
   endif
   return promise
 endfunction
+
+function! s:resolve(...)
+  let value = a:0 ? a:1 : v:null
+  let timeout = a:0 > 1 ? a:2 : 5000
+  let promise = s:Promise.resolve(value)
+  if s:debug
+    call timer_start(timeout, {-> promise.catch(s:err_handler)})
+  endif
+  return promise
+endfunction
+
+function! s:reject(...)
+  let value = a:0 ? a:1 : v:null
+  let timeout = a:0 > 1 ? a:2 : 5000
+  let promise = s:Promise.reject(value)
+  if s:debug
+    call timer_start(timeout, {-> promise.catch(s:err_handler)})
+  endif
+  return promise
+endfunction
+
+function! s:all(promises, ...)
+  let timeout = a:0 ? a:1 : 5000
+  let promise = s:Promise.all(a:promises)
+  if s:debug
+    call timer_start(timeout, {-> promise.catch(s:err_handler)})
+  endif
+  return promise
+endfunction
+
+
+" XXX : If vital supports `extend` feature,
+"       below must be replaced to that.
+function! s:race(promises, ...)
+  let value = a:0 ? a:1 : v:null
+  let timeout = a:0 > 1 ? a:2 : 5000
+  let promise = s:Promise.race(a:promises)
+  if s:debug
+    call timer_start(timeout, {-> promise.catch(s:err_handler)})
+  endif
+  return promise
+endfunction
+
+function! s:is_available(...) abort
+  return call(Promise.is_available, a:000)
+endfunction
+
+function! s:is_promise(...) abort
+  return call(Promise.is_promise, a:000)
+endfunction
+
+function! s:wait(...) abort
+  return call(Promise.wait, a:000)
+endfunction
+
+function! s:noop(...) abort
+  return call(Promise.wait, a:000)
+endfunction
+
 
 function! s:set_debug(debug)
   let s:debug = a:debug
@@ -71,4 +123,3 @@ function! s:_default_err_handler(ex) abort
 endfunction
 
 let s:err_handler = function('s:_default_err_handler')
-
