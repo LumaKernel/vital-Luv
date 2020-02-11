@@ -15,7 +15,7 @@ Describe Async.Promise.Hack
         sleep 200m
       redir END
       Assert Match(mes, '\CError detected while processing')
-      Assert Match(mes, '\cerror from throw')
+      Assert Match(mes, '\Cerror from throw')
       " Check called just once
       Assert NotMatch(mes, repeat('\CError detected while processing.*', 2))
     End
@@ -24,9 +24,9 @@ Describe Async.Promise.Hack
         call Promise.new({resolve, reject -> [reject('reject from new'), 0][-1]})
         sleep 200m
       redir END
-      Assert Match(mes, '\creject from new')
+      Assert Match(mes, '\Creject from new')
       " Check called just once
-      Assert NotMatch(mes, repeat('\creject from new.*', 2))
+      Assert NotMatch(mes, repeat('\Creject from new.*', 2))
     End
     It not block .catch by user
       let handled_myself = 0
@@ -36,8 +36,18 @@ Describe Async.Promise.Hack
         sleep 200m
       redir END
       Assert NotMatch(mes, '\CError detected while processing')
-      Assert NotMatch(mes, '\cerror from throw')
+      Assert NotMatch(mes, '\Cerror from throw')
       Assert Equals(handled_myself, 1)
+    End
+    It helps the case the user failed to handle error by himself
+      redir => mes
+        call Promise.new({resolve, reject -> [execute("throw 'error for user'"), 0][-1]})
+              \.catch({-> [execute("throw 'failed to handle'")]})
+        sleep 200m
+      redir END
+      Assert NotMatch(mes, '\Cerror for user')
+      Assert Match(mes, '\CError detected while processing')
+      Assert Match(mes, '\Cfailed to handle')
     End
   End
 

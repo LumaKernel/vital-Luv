@@ -118,7 +118,7 @@ function! s:_hack_promise(promise) abort
   let Orig_then = a:promise.then
   function! a:promise.then(...) abort closure
     let promise = call(Orig_then, a:000)
-    if s:debug && get(a:000, 0, v:null) isnot v:null
+    if s:debug
       let promise = s:_hack_promise(promise)
     endif
     if exists('timer_id') && get(a:000, 1, v:null) isnot v:null

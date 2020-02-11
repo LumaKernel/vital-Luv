@@ -18,12 +18,19 @@ INTRODUCTION				*Vital.Async.Promise.Hack-introduction*
 
 *Vital.Async.Promise.Hack* is the lazy hack to ease debugging
 |Vital.Async.Promise|. Sometimes we forgot to register the catch.
-The features are off by default and you should enable by
-|Vital.Async.Promise.Hack.set_debug()|.
+The features are off by default and you should enable by yourself.
+Ex:>
+    call Promise.set_debug(1)
+<
 
 This is the one-liner Ex command to replace your imports.
 >
   :vim /#import('Async.Promise')/ `find . -name "*.vim" -a -not -path "*autoload/vital*"` | cdo s/#import('Async.Promise')/#import('Async.Promise.Hack')/g | up
+<
+
+This is the one for revert.
+>
+  :vim /#import('Async.Promise.Hack')/ `find . -name "*.vim" -a -not -path "*autoload/vital*"` | cdo s/#import('Async.Promise.Hack')/#import('Async.Promise')/g | up
 <
 
 ==============================================================================
@@ -32,6 +39,9 @@ FUNCTIONS 				*Vital.Async.Promise.Hack-functions*
 			*Vital.Async.Promise.Hack.set_debug()*
 set_debug({debug})
 	Set truthy value to enable features of this plugin.
+>
+    call Promise.set_debug(1)
+<
 
 			*Vital.Async.Promise.Hack.set_err_handler()*
 set_err_handler({handler})
@@ -43,6 +53,9 @@ set_err_handler({handler})
 set_timeout({timeout})
 	Set the default timeout [ms] to provide to |timer_start()|. The
 	default timeout is set to 5000 ms.
+Ex:>
+	call Promise.set_timeout(1)
+<
 
 			*Vital.Async.Promise.Hack.get_err_handler()*
 get_err_handler()
@@ -51,17 +64,21 @@ get_err_handler()
 			*Vital.Async.Promise.Hack.get_default_err_handler()*
 get_default_err_handler()
 	Get the default handler. Useful for setting by yourself.
+Ex:>
+	let E = PromiseHack.get_default_err_handler()
+	call my_promise.catch(E)
+<
 
 			*Vital.Async.Promise.Hack.new()*
 			*Vital.Async.Promise.Hack.resolve()*
 			*Vital.Async.Promise.Hack.reject()*
 			*Vital.Async.Promise.Hack.all()*
 			*Vital.Async.Promise.Hack.race()*
-new({executor} [, {timeout} = 5000])
-resolve([{value} [, {timeout} = 5000]])
-reject([{value} [, {timeout} = 5000]])
-all({promises} [, {timeout} = 5000])
-race({promises} [, {timeout} = 5000])
+new({executor})
+resolve([{value})
+reject([{value})
+all({promises})
+race({promises})
 	Alternatives for |Vital.Async.Promise-functions|.
 	After {timeout} ms, this register the error handler by 
 	|Vital.Async.Promise-Promise.catch()|.
