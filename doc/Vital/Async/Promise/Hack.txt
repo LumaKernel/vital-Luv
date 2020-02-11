@@ -43,11 +43,16 @@ set_debug({debug})
     call Promise.set_debug(1)
 <
 
+			*Vital.Async.Promise.Hack.get_err_handler()*
+get_err_handler()
+	Get the handler that is set now.
+	The default handler is showing the exception in |:echomsg| like with
+	the style that Vim show in English.
+
 			*Vital.Async.Promise.Hack.set_err_handler()*
 set_err_handler({handler})
 	Set the handler for error handling. Set |v:null| to use the default
-	error handler. The default handler is showing the exception in
-	|:echomsg|.
+	error handler.
 
 			*Vital.Async.Promise.Hack.set_timeout()*
 set_timeout({timeout})
@@ -56,10 +61,6 @@ set_timeout({timeout})
 Ex:>
 	call Promise.set_timeout(1)
 <
-
-			*Vital.Async.Promise.Hack.get_err_handler()*
-get_err_handler()
-	Get the handler that is set now.
 
 			*Vital.Async.Promise.Hack.get_default_err_handler()*
 get_default_err_handler()
@@ -75,8 +76,8 @@ Ex:>
 			*Vital.Async.Promise.Hack.all()*
 			*Vital.Async.Promise.Hack.race()*
 new({executor})
-resolve([{value})
-reject([{value})
+resolve([{value}])
+reject([{value}])
 all({promises})
 race({promises})
 	Alternatives for |Vital.Async.Promise-functions|.
@@ -86,6 +87,11 @@ race({promises})
 			*Vital.Async.Promise.Hack.is_available()*
 			*Vital.Async.Promise.Hack.is_promise()*
 	Copies from |Vital.Async.Promise-functions|.
+
+
+	Note that you should be careful, if your handler failed, you will miss
+	the error again against the purpose of this plugin. Recommended to use
+	well tested handers.
 
 ==============================================================================
 vim:tw=78:ts=8:noet:ft=help:norl

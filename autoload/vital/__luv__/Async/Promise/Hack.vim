@@ -71,7 +71,9 @@ function! s:get_default_error_handler()
 endfunction
 
 function! s:_default_err_handler(ex) abort
-  if type(a:ex) == v:t_dict && has_key(a:ex, 'throwpoint')
+  if type(a:ex) == v:t_dict
+        \ && has_key(a:ex, 'throwpoint')
+        \ && type(a:ex.throwpoint) == v:t_string
     let pat = '\C^\(.*\), line \(\d\+\)$'
     let throwpoint = a:ex.throwpoint
     let line = v:null
@@ -88,7 +90,7 @@ function! s:_default_err_handler(ex) abort
     if line isnot v:null
       echomsg line
     endif
-    if has_key(a:ex, 'exception')
+    if has_key(a:ex, 'exception') && type(a:ex.exception) == v:t_string
       echohl ErrorMsg
       echomsg '<Promise Uncaught Exception> ' . a:ex.exception
       echohl None
@@ -111,11 +113,12 @@ endfunction
 let s:err_handler = function('s:_default_err_handler')
 
 function! s:_hack_promise(promise) abort
+  let Orig_then = a:promise.then
+
   if s:debug
-    let timer_id = timer_start(s:timeout, {-> a:promise.catch(s:err_handler)})
+    let timer_id = timer_start(s:timeout, {-> Orig_then(v:null, s:err_handler)})
   endif
   
-  let Orig_then = a:promise.then
   function! a:promise.then(...) abort closure
     let promise = call(Orig_then, a:000)
     if s:debug
