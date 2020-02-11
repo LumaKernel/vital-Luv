@@ -130,6 +130,7 @@ Describe Options
       Throws /\ctype/ opts1.set('type3', {'value': 'yo'})
     End
     It throws when got unknown name
+      Throws /\cinvalid type/ opts1.set(999, {'value': 0})
       Throws /\cunknown option name/ opts1.set('none', {'value': 0})
     End
     It warns when using deprecated optoins

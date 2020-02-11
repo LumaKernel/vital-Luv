@@ -40,7 +40,7 @@ function! s:new(namespace, ...) abort  " {{{
 
   if type(self.provider) == v:t_string
     if !has_key(s:_providers, self.provider)
-      throw '[Options] Avaliable providers are ' . join(map(keys(s:_providers), '"''" . v:val . "''"'), ', ') . '.'
+      echoerr '[Options] Avaliable providers are ' . join(map(keys(s:_providers), '"''" . v:val . "''"'), ', ') . '.'
     endif
     let self.provider = s:_providers[self.provider]
   endif
