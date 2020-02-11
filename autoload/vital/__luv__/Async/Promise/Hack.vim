@@ -8,44 +8,26 @@ function! s:_vital_loaded(V) abort
   let s:Promise = a:V.import('Async.Promise')
 endfunction
 
-function! s:new(...)
-  return s:_hack_promise(call(s:Promise.new, a:000))
-endfunction
-
-function! s:resolve(...)
-  return s:_hack_promise(call(s:Promise.resolve, a:000))
-endfunction
-
-function! s:reject(...)
-  return s:_hack_promise(call(s:Promise.reject, a:000))
-endfunction
-
-function! s:all(...)
-  return s:_hack_promise(call(s:Promise.all, a:000))
-endfunction
-
-function! s:race(...)
-  return s:_hack_promise(call(s:Promise.race, a:000))
-endfunction
+let to_hack = ['new', 'resolve', 'reject', 'all', 'race']
+for funcname in to_hack
+  exe printf(join([
+        \   'function! s:%s(...) abort',
+        \   '  return s:_hack_promise(call(s:Promise.%s, a:000))',
+        \   'endfunction',
+        \ ], "\n"), funcname, funcname)
+endfor
 
 
 " XXX : If vital supports `extend` feature,
 "       below must be replaced to that.
-function! s:is_available(...) abort
-  return call(Promise.is_available, a:000)
-endfunction
-
-function! s:is_promise(...) abort
-  return call(Promise.is_promise, a:000)
-endfunction
-
-function! s:wait(...) abort
-  return call(Promise.wait, a:000)
-endfunction
-
-function! s:noop(...) abort
-  return call(Promise.wait, a:000)
-endfunction
+let to_extend = ['is_available', 'is_promise', 'wait', 'noop']
+for funcname in to_extend
+  exe printf(join([
+        \   'function! s:%s(...) abort',
+        \   '  return call(Promise.%s, a:000)',
+        \   'endfunction',
+        \ ], "\n"), funcname, funcname)
+endfor
 
 
 let s:debug = 0
