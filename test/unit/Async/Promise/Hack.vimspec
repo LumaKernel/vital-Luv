@@ -3,13 +3,15 @@ Describe Async.Promise.Hack
   Before all
     let Promise0 = vital#vital#import('Async.Promise')
     let Promise = vital#vital#import('Async.Promise.Hack')
+    let E = Promise.get_default_error_handler()
     call Promise.set_debug(1)
+    call Promise.set_timeout(10)
   End
 
   Describe .new()
     It echos throwed error
       redir => mes
-        call Promise.new({resolve, reject -> [execute("throw 'error from throw'"), 0][-1]}, 10)
+        call Promise.new({resolve, reject -> [execute("throw 'error from throw'"), 0][-1]})
         sleep 200m
       redir END
       Assert Match(mes, '\CError detected while processing')
@@ -17,7 +19,7 @@ Describe Async.Promise.Hack
     End
     It echos rejected error
       redir => mes
-        call Promise.new({resolve, reject -> [reject('reject from new'), 0][-1]}, 10)
+        call Promise.new({resolve, reject -> [reject('reject from new'), 0][-1]})
         sleep 200m
       redir END
       Assert Match(mes, '\creject from new')
@@ -25,14 +27,13 @@ Describe Async.Promise.Hack
   End
 
   Describe .resolve()
-    It echos throwed error of invalid Ex command
+    It hacks .then()
       function! s:_test() abort
         _bar
       endfunction
       redir => mes
-        call Promise.resolve('foo', 10)
+        call Promise.resolve('foo')
               \.then({val -> s:_test()})
-              \.catch(Promise.get_default_error_handler())
         sleep 200m
       redir END
       Assert Match(mes, '\CError detected while processing')
@@ -43,12 +44,26 @@ Describe Async.Promise.Hack
   Describe .reject()
     It echos rejected error
       redir => mes
-        call Promise.reject('reject from Promise.reject()', 10)
+        call Promise.reject('reject from Promise.reject()')
         sleep 200m
       redir END
       Assert Match(mes, '\Creject from Promise.reject()')
     End
   End
+
+  Describe .get_default_error_handler()
+    It provides useful error handler
+      redir => mes
+        call Promise0.resolve('foo')
+              \.then({val -> execute('_bar')})
+              \.catch(E)
+        sleep 200m
+      redir END
+      Assert Match(mes, '\CError detected while processing')
+      Assert Match(mes, '\C_bar')
+    End
+  End
+
 
   It extends promise features
     for key in keys(Promise0)

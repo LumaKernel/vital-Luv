@@ -9,41 +9,41 @@ function! s:_vital_loaded(V) abort
 endfunction
 
 function! s:new(resolver, ...)
-  let timeout = a:0 ? a:1 : 5000
+  let timeout = a:0 ? a:1 : s:timeout
   let promise = s:Promise.new(a:resolver)
   if s:debug
     call timer_start(timeout, {-> promise.catch(s:err_handler)})
   endif
-  return promise
+  return s:_hack_then(promise)
 endfunction
 
 function! s:resolve(...)
   let value = a:0 ? a:1 : v:null
-  let timeout = a:0 > 1 ? a:2 : 5000
+  let timeout = a:0 > 1 ? a:2 : s:timeout
   let promise = s:Promise.resolve(value)
   if s:debug
     call timer_start(timeout, {-> promise.catch(s:err_handler)})
   endif
-  return promise
+  return s:_hack_then(promise)
 endfunction
 
 function! s:reject(...)
   let value = a:0 ? a:1 : v:null
-  let timeout = a:0 > 1 ? a:2 : 5000
+  let timeout = a:0 > 1 ? a:2 : s:timeout
   let promise = s:Promise.reject(value)
   if s:debug
     call timer_start(timeout, {-> promise.catch(s:err_handler)})
   endif
-  return promise
+  return s:_hack_then(promise)
 endfunction
 
 function! s:all(promises, ...)
-  let timeout = a:0 ? a:1 : 5000
+  let timeout = a:0 ? a:1 : s:timeout
   let promise = s:Promise.all(a:promises)
   if s:debug
     call timer_start(timeout, {-> promise.catch(s:err_handler)})
   endif
-  return promise
+  return s:_hack_then(promise)
 endfunction
 
 
@@ -51,12 +51,12 @@ endfunction
 "       below must be replaced to that.
 function! s:race(promises, ...)
   let value = a:0 ? a:1 : v:null
-  let timeout = a:0 > 1 ? a:2 : 5000
+  let timeout = a:0 > 1 ? a:2 : s:timeout
   let promise = s:Promise.race(a:promises)
   if s:debug
     call timer_start(timeout, {-> promise.catch(s:err_handler)})
   endif
-  return promise
+  return s:_hack_then(promise)
 endfunction
 
 function! s:is_available(...) abort
@@ -89,8 +89,9 @@ function! s:set_error_handler(err_handler)
   endif
 endfunction
 
-function! s:get_error_handler()
-  return s:err_handler
+let s:timeout = 5000
+function! s:set_timeout(timeout)
+  let s:timeout = a:timeout
 endfunction
 
 function! s:get_default_error_handler()
@@ -118,12 +119,16 @@ function! s:_default_err_handler(ex) abort
     if has_key(a:ex, 'exception')
       echohl ErrorMsg
       echomsg "<Promise Uncaught Exception> " . a:ex.exception
-      if len(keys(a:ex)) > 2
-        echomsg "<Promise Uncaught> " . string(a:ex)
-      endif
       echohl None
+      if len(keys(a:ex)) > 2
+        echohl ErrorMsg
+        echomsg "<Promise Uncaught> " . string(a:ex)
+        echohl None
+      endif
     else
+      echohl ErrorMsg
       echomsg "<Promise Uncaught> " . string(a:ex)
+      echohl None
     endif
   else
     echohl ErrorMsg
@@ -133,3 +138,15 @@ function! s:_default_err_handler(ex) abort
 endfunction
 
 let s:err_handler = function('s:_default_err_handler')
+
+function! s:_hack_then(promise) abort
+  " let orig = a:promise.then
+  " function! a:promise.then(...) abort closure
+  "   if s:debug
+  "     call timer_start(s:timeout, {-> a:promise.catch(s:err_handler)})
+  "   endif
+  "   return s:_hack_then(call(orig, a:000))
+  " endfunction
+  return promise
+endfunction
+
