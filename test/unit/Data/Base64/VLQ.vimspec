@@ -1,0 +1,22 @@
+Describe Vital/Data.Base64.VLQ
+  Before all
+    let VLQ = vital#vital#import('Data.Base64.VLQ')
+  End
+
+  Describe .encode()
+    It transform number list to string
+      Assert Equals(VLQ.encode([0, 0, 0, 0]), 'AAAA')
+      Assert Equals(VLQ.encode([200, -400, 600]), 'wMhZwlB')
+      Assert Equals(VLQ.encode([]), '')
+      Assert Equals(VLQ.encode([1000000000]), 'gglrz7B')
+    End
+  End
+  Describe .decode()
+    It transform string to number list
+      Assert Equals(VLQ.decode('AAAA'), [0, 0, 0, 0])
+      Assert Equals(VLQ.decode('wMhZwlB'), [200, -400, 600])
+      Assert Equals(VLQ.decode(''), [])
+      Assert Equals(VLQ.decode('gglrz7B'), [1000000000])
+    End
+  End
+End
