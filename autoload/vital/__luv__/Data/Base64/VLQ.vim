@@ -1,4 +1,5 @@
 " Base64 VLQ used in Source Map Revision 3
+" Ref: https://medium.com/@trungutt/yet-another-explanation-on-sourcemap-669797e418ce
 " Ref: https://en.wikipedia.org/wiki/Variable-length_quantity
 
 " @param {[number-like]} numbers
