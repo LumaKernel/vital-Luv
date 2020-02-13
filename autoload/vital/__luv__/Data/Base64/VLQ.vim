@@ -43,7 +43,7 @@ function! s:decode(str) abort
       let itr += 1
       let byte = bytes[itr]
       let num += (byte % 32) * bias  " byte & 0b011111
-      let bias *= 32  " bias <<= 5
+      let bias = bias * 32  " bias <<= 5
     endwhile
     if sign | let num = -num | endif
     call add(buf, num)
