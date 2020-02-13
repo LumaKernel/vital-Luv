@@ -40,7 +40,7 @@ function! s:decode(str) abort
 
     let num = (byte / 2) % 16  " (byte >> 1) & 0b001111
     let bias = 16  " bias = 1 << 4
-    while byte / 32  " byte & 0b100000
+    while (byte / 32) && itr + 1 < len(bytes)  " byte & 0b100000
       let itr += 1
       let byte = bytes[itr]
       let num += (byte % 32) * bias  " byte & 0b011111
@@ -51,6 +51,11 @@ function! s:decode(str) abort
     let itr += 1
   endwhile
   return buf
+endfunction
+
+function! s:is_valid_VLQ(str) abort
+  if type(a:str) != v:t_string | return 0 | endif
+  return len(filter(split(a:str, '\zs'), '!has_key(s:rfc4648_decode_map, v:val)')) == 0
 endfunction
 
 let s:is_padding = 0

@@ -19,4 +19,15 @@ Describe Vital/Data.Base64.VLQ
       Assert Equals(VLQ.decode('gglrz7B'), [1000000000])
     End
   End
+  Describe .is_valid_VLQ()
+    It check validity
+      Assert True(VLQ.is_valid_VLQ('AABC'))
+      Assert True(VLQ.is_valid_VLQ(''))
+
+      Assert False(VLQ.is_valid_VLQ(0))
+      Assert False(VLQ.is_valid_VLQ(' '))
+      Assert False(VLQ.is_valid_VLQ('='))
+      Assert False(VLQ.is_valid_VLQ('あ'))
+    End
+  End
 End

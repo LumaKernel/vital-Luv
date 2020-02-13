@@ -5,6 +5,11 @@ if $THEMIS_PROFILE !=# ''
   profile! file ./autoload/*
 endif
 
+let s:verbose = 1
+if $TEST_THEMIS_VERBOSE !=# ''
+  silent! let s:verbose = str2nr($TEST_THEMIS_VERBOSE)
+endif
+
 try
   language message C
 catch
@@ -36,7 +41,6 @@ let s:check_values = [
       \ ]
 
 
-" {{{
 let s:maxlen = max(map(copy(s:check_values), 'len(v:val)'))
 for s:vals in s:check_values
   if s:vals ==# '--'
@@ -45,5 +49,16 @@ for s:vals in s:check_values
     call themis#log(s:vals . ':' . repeat(' ', s:maxlen + 4 - len(s:vals)) . '%s', eval(s:vals))
   endif
 endfor
-" }}}
+
+function! Dump(data, filename) abort
+  if !s:verbose | return | endif
+  try
+    call writefile(data, filename)
+  catch /.*/
+    echohl WarningMsg
+    echom '[Warning] Dump was failed.'
+    echom '[Warning] Exception: ' . v:exception
+    echohl None
+  endtry
+endfunction
 
