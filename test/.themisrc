@@ -53,12 +53,10 @@ endfor
 function! Dump(data, filename) abort
   if !s:verbose | return | endif
   try
-    call writefile(data, filename)
+    call writefile(a:data, a:filename)
   catch /.*/
-    echohl WarningMsg
-    echom '[Warning] Dump was failed.'
-    echom '[Warning] Exception: ' . v:exception
-    echohl None
+    call themis#log('[Warning] Dump was failed.')
+    call themis#log('[Warning] Exception: ' . v:exception)
   endtry
 endfunction
 

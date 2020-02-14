@@ -8,9 +8,36 @@ Describe SourceMap.v3
     let map1 = v3.from_json(json1)
   End
   Describe .apply()
-    It transform generated loc to original loc
-      let info = map1.apply([26, 19])
-      call Dump([json_encode(map1.src_info)], '.dev/map1.json')
+    It transforms generated loc to original loc
+      let image_call_isok = map1.apply([26, 19])
+      call Dump([json_encode(image_call_isok)], '.dev/image_call_isok.json')
+
+      Assert Equals(image_call_isok.info.loc, [4, 21])
+      Assert Equals(image_call_isok.info.source, 'b.js')
+
+      let image_comment = map1.apply([6, 0])
+      Assert Equals(image_comment.info.loc, [1, 0])
+      Assert Equals(image_comment.info.source, 'b.js')
+
+      let image_c_js_expanded = map1.apply([55, 0])
+      call Dump([json_encode(image_c_js_expanded)], '.dev/image_c_js_expanded.json')
+      Assert Equals(image_c_js_expanded.info.loc, [2, 28])
+      Assert Equals(image_c_js_expanded.info.source, 'c.js')
+    End
+    It maps loc that is not known in the source
+      let image_null = map1.apply([0, 0])
+      Assert Same(image_null.info, v:null)
+    End
+  End
+  Describe .to_json()
+    It makes SourceMap spec json
+      call map1.set_source_content('c.js', v:null)
+      let json_reversed = map1.to_json()
+      call Dump([json_encode(json_reversed)], '.dev/map1_revered.json')
+      Assert Equals(json_reversed.version, 3)
+      Assert Equals(json_reversed.mappings, json1.mappings)
+      Assert Equals(json_reversed.sources, ['b.js', 'c.js'])
+      Assert Same(json_reversed.sourcesContent[1], v:null)
     End
   End
 End
