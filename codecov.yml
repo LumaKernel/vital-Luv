@@ -11,4 +11,9 @@ coverage:
         paths:
         - autoload
 
-comment: false
+comment:
+  layout: "reach, diff, flags, files"
+  branches:
+    - master
+  behavior: default
+
