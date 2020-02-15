@@ -6,13 +6,14 @@ Describe Async.Promise.Hack
     let E = Promise.get_default_error_handler()
     call Promise.set_debug(1)
     call Promise.set_timeout(1)
+    let sleep_time = has('win32') ? '100m' : '10m'
   End
 
   Describe .new()
     It echos throwed error
       redir => mes
         call Promise.new({resolve, reject -> [execute("throw 'error from throw'"), 0][-1]})
-        sleep 10m
+        exe 'sleep' sleep_time
       redir END
       Assert Match(mes, '\CError detected while processing')
       Assert Match(mes, '\C<Promise Uncaught Exception> error from throw')
@@ -23,7 +24,7 @@ Describe Async.Promise.Hack
       It is the case throwpoint is list
         redir => mes
           call Promise.new({resolve, reject -> reject({'throwpoint': [], 'exception': [], 'val': 1})})
-          sleep 10m
+          exe 'sleep' sleep_time
         redir END
         Assert Match(mes, '\C''val'': 1')
         Assert Match(mes, '\C<Promise Uncaught> ')
@@ -33,7 +34,7 @@ Describe Async.Promise.Hack
       It is the case throwpoint is string
         redir => mes
           call Promise.new({resolve, reject -> reject({'throwpoint': '', 'exception': [], 'val': 1})})
-          sleep 10m
+          exe 'sleep' sleep_time
         redir END
         Assert Match(mes, '\CError detected while processing')
         Assert Match(mes, '\C''val'': 1')
@@ -44,7 +45,7 @@ Describe Async.Promise.Hack
       It is the case throwpoint and exception is string
         redir => mes
           call Promise.new({resolve, reject -> reject({'throwpoint': '', 'exception': '', 'val': 1})})
-          sleep 10m
+          exe 'sleep' sleep_time
         redir END
         Assert Match(mes, '\CError detected while processing')
         Assert Match(mes, '\C''val'': 1')
@@ -56,7 +57,7 @@ Describe Async.Promise.Hack
     It echos rejected error
       redir => mes
         call Promise.new({resolve, reject -> [reject('reject from new'), 0][-1]})
-        sleep 10m
+        exe 'sleep' sleep_time
       redir END
       Assert Match(mes, '\Creject from new')
       " Check called just once
@@ -67,7 +68,7 @@ Describe Async.Promise.Hack
       redir => mes
         call Promise.new({resolve, reject -> [execute("throw 'error from throw'"), 0][-1]})
               \.catch({-> [handled_myself, execute('let handled_myself = 1')]})
-        sleep 10m
+        exe 'sleep' sleep_time
       redir END
       Assert NotMatch(mes, '\CError detected while processing')
       Assert NotMatch(mes, '\Cerror from throw')
@@ -77,7 +78,7 @@ Describe Async.Promise.Hack
       redir => mes
         call Promise.new({resolve, reject -> [execute("throw 'error for user'"), 0][-1]})
               \.catch({-> [execute("throw 'failed to handle'")]})
-        sleep 10m
+        exe 'sleep' sleep_time
       redir END
       Assert NotMatch(mes, '\Cerror for user')
       Assert Match(mes, '\CError detected while processing')
@@ -93,7 +94,7 @@ Describe Async.Promise.Hack
       redir => mes
         call Promise.resolve('foo')
               \.then({val -> s:_test()})
-        sleep 10m
+        exe 'sleep' sleep_time
       redir END
       Assert Match(mes, '\CError detected while processing')
       Assert Match(mes, '\C<Promise Uncaught Exception> ')
@@ -107,7 +108,7 @@ Describe Async.Promise.Hack
     It echos rejected error
       redir => mes
         call Promise.reject('reject from Promise.reject()')
-        sleep 10m
+        exe 'sleep' sleep_time
       redir END
       Assert Match(mes, '\Creject from Promise.reject()')
       " Check called just once
@@ -123,7 +124,7 @@ Describe Async.Promise.Hack
       call Promise.set_error_handler(function('s:handler'))
       redir => mes
         call Promise.reject('error from reject')
-        sleep 10m
+        exe 'sleep' sleep_time
       redir END
       Assert Match(mes, '\Cerror from reject')
       " Check called once
@@ -133,7 +134,7 @@ Describe Async.Promise.Hack
       call Promise.set_error_handler(v:null)
       redir => mes
         call Promise.reject('error from reject')
-        sleep 10m
+        exe 'sleep' sleep_time
       redir END
       Assert Match(mes, '\Cerror from reject')
 
@@ -148,7 +149,7 @@ Describe Async.Promise.Hack
         call Promise0.resolve('foo')
               \.then({val -> execute('_bar')})
               \.catch(E)
-        sleep 10m
+        exe 'sleep' sleep_time
       redir END
       Assert Match(mes, '\CError detected while processing')
       Assert Match(mes, '\C_bar')

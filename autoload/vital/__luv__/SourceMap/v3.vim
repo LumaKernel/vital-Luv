@@ -3,6 +3,9 @@
 " Spec: v3: https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit?usp=sharing
 " Ref: https://github.com/mozilla/source-map
 " Ref: https://github.com/babel/babel
+"
+" Author: Luma
+" License: Unlicense
 
 function! s:_vital_depends() abort
   return [
