@@ -10,7 +10,7 @@ nothing:
 
 .PHONY: clean
 clean:
-	-rm -f ../test/unit/ProfileParser/fixtures/*.profile
+	-rm -f ../test/unit/ProfileParser/fixtures/profile/*.profile
 
 .PHONY: profiles
 profiles: profiles-vim profiles-nvim

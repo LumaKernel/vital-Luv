@@ -2,16 +2,92 @@
 Describe Vital/ProfileParser
   Before all
     let PP = vital#vital#import('ProfileParser')
+    let scope = themis#helper('scope')
+    let _PP = scope.funcs('autoload/vital/__luv__/ProfileParser.vim')
   End
 
-  Describe .parse()
-    It parses
-      for i in glob('test/unit/ProfileParser/fixtures/vim_*.profile')
-        let profile = readfile('glob')
-        let result = PP.parse()
-      endfor
+  Describe s:_parse_line()
+    It parses lines correctory
+      Assert Equals(_PP._parse_line(
+            \ '    1   0.000015   0.000009 call F()', 'test', 1).test, 'call F()')
+      Assert Equals(_PP._parse_line(
+            \ '10001   0.000015   0.000009 call F()', 'test', 1).test, 'call F()')
+      Assert Equals(_PP._parse_line(
+            \ '1000000              1.282614   let x += 1', 'test', 1),
+            \ { 'test': '  let x += 1', 'count': 1000000, 'self_time': 1.282614 })
     End
   End
 
+  Describe .parse()
+    It outputs same as snapshots
+      " snapshot test
+      let g:results = {}
+      let testprofiles = glob('test/unit/ProfileParser/fixtures/profile/vim_*.profile', 1, 1)
+      for testfile in testprofiles
+        let filename = fnamemodify(testfile, ':t:r')
+        let out_path = 'test/unit/ProfileParser/fixtures/out/' . filename . '.json'
+        let exp_path = 'test/unit/ProfileParser/fixtures/expected/' . filename . '.json'
+        let profile = readfile(testfile)
+
+        call themis#log('     + Snapshot : ' . filename)
+
+        let result = PP.parse(profile)
+        let g:results[filename] = result
+
+        if $TEST_THEMIS_VERBOSE ==# ''
+          call mkdir(fnamemodify(out_path, ':p:h'), 'p')
+          call writefile([json_encode(result)], out_path)
+        endif
+
+        if !filereadable(exp_path)
+          call mkdir(fnamemodify(exp_path, ':p:h'), 'p')
+          call writefile([json_encode(result)], exp_path)
+        endif
+      endfor
+      for testfile in testprofiles
+        let filename = fnamemodify(testfile, ':t:r')
+        let exp_path = 'test/unit/ProfileParser/fixtures/expected/' . filename . '.json'
+        let profile = readfile(testfile)
+
+        call themis#log('     + Snapshot Test : ' . filename)
+
+        let result = PP.parse(profile)
+
+        let expected = json_decode(join(readfile(exp_path), ''))
+        Assert Equals(result, expected)
+      endfor
+    End
+    It parses basic lines
+      Assert Equals(len(g:results['vim_function']), 4)
+      Assert Equals(g:results['vim_function'][0].type, 'script')
+      Assert Equals(len(g:results['vim_function'][0].lines), 7)
+      Assert Equals(g:results['vim_function'][0].lines[0].content, '')
+      Assert Equals(g:results['vim_function'][0].lines[1].content, 'function! F()')
+    End
+    It parses spaces
+      Assert Equals(g:results['vim_comments'][0].lines[0].content, '')
+      Assert Equals(g:results['vim_comments'][0].lines[1].content, '" comment1')
+      Assert Equals(g:results['vim_comments'][0].lines[2].content, '  " multibyte : コメント')
+      Assert Equals(g:results['vim_comments'][0].lines[5].content, '  " spaces')
+      Assert Equals(g:results['vim_comments'][0].lines[6].content, '  ')
+    End
+    It parses functions section
+      Assert Equals(len(g:results['vim_function']), 4)
+      Assert Equals(g:results['vim_function'][1].type, 'function')
+      Assert Match(g:results['vim_function'][1].defined.path, 'test_function\.vim$')
+      Assert Equals(g:results['vim_function'][1].defined.line, 2)
+      Assert Equals(g:results['vim_function'][1].name, 'F()')
+      Assert Equals(g:results['vim_function'][1].lines[0].count, 1)
+      Assert Equals(g:results['vim_function'][1].lines[0].content, "  echomsg 'string'")
+    End
+    It parses functions list section
+      Assert Equals(g:results['vim_function'][2].type, 'function_list')
+      Assert Equals(g:results['vim_function'][2].what, 'TOTAL TIME')
+      Assert Equals(g:results['vim_function'][3].what, 'SELF TIME')
+      Assert Equals(len(g:results['vim_function'][2].functions), 1)
+      Assert Equals(g:results['vim_function'][2].functions[0].name, 'F()')
+      Assert Equals(g:results['vim_function'][2].functions[0].count, 1)
+    End
+  End
 End
 
