@@ -1,7 +1,7 @@
-SCRIPT  /home/luma/vim-make-plugin/vital-Luv/dev/ProfileParser/test_comments.vim
+SCRIPT  /test/test_comments.vim
 Sourced 1 time
-Total time:   0.000095
- Self time:   0.000095
+Total time:   0.000070
+ Self time:   0.000070
 
 count  total (s)   self (s)
                             

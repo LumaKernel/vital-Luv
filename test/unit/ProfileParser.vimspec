@@ -88,6 +88,10 @@ Describe Vital/ProfileParser
       Assert Equals(g:results['vim_function'][2].functions[0].name, 'F()')
       Assert Equals(g:results['vim_function'][2].functions[0].count, 1)
     End
+    It resolves path
+      Assert NotMatch(g:results['vim_function'][1].defined.path, '\.\.')
+      Assert NotMatch(g:results['vim_function'][1].defined.path, '\~')
+    End
   End
 End
 
