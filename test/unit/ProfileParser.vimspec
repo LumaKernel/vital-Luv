@@ -90,7 +90,6 @@ Describe Vital/ProfileParser
     End
     It resolves path
       Assert NotMatch(g:results['vim_function'][1].defined.path, '\.\.')
-      Assert NotMatch(g:results['vim_function'][1].defined.path, '\~')
     End
   End
 End

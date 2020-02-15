@@ -36,7 +36,7 @@ function! s:_parse_script_section(lines) abort
     let line = a:lines[itr]
     let pat = '^SCRIPT\>\s\+\(.*\)'
     if line =~# pat
-      let res.path = resolve(expand(matchlist(line, pat)[1]))
+      let res.path = resolve(matchlist(line, pat)[1])
     endif
 
     let pat = '^Sourced\s\+\(\d\+\)'
@@ -81,7 +81,7 @@ function! s:_parse_function_section(lines) abort
       if itr + 1 < len(a:lines) && a:lines[itr + 1] =~? pat
         let groups = matchlist(a:lines[itr + 1], pat)
         let res.defined = {
-              \   'path' : resolve(expand(groups[1])),
+              \   'path' : resolve(groups[1]),
               \   'line' : str2nr(groups[2]),
               \ }
         let itr += 2
