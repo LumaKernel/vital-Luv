@@ -29,7 +29,7 @@ Describe Vital/ProfileParser
         let exp_path = 'test/unit/ProfileParser/fixtures/expected/' . filename . '.json'
         let profile = readfile(testfile)
 
-        call themis#log('     + Snapshot : ' . filename)
+        call themis#log('      + Snapshot : ' . filename)
 
         let result = PP.parse(profile)
         let g:results[filename] = result
@@ -49,7 +49,7 @@ Describe Vital/ProfileParser
         let exp_path = 'test/unit/ProfileParser/fixtures/expected/' . filename . '.json'
         let profile = readfile(testfile)
 
-        call themis#log('     + Snapshot Test : ' . filename)
+        call themis#log('      + Snapshot Test : ' . filename)
 
         let result = PP.parse(profile)
 
