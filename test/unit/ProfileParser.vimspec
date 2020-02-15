@@ -1,0 +1,17 @@
+
+Describe Vital/ProfileParser
+  Before all
+    let PP = vital#vital#import('ProfileParser')
+  End
+
+  Describe .parse()
+    It parses
+      for i in glob('test/unit/ProfileParser/fixtures/vim_*.profile')
+        let profile = readfile('glob')
+        let result = PP.parse()
+      endfor
+    End
+  End
+
+End
+

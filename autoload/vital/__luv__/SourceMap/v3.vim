@@ -6,7 +6,8 @@
 
 function! s:_vital_depends() abort
   return [
-        \ 'Data.Base64.VLQ',
+        \   'Data.Base64.VLQ',
+        \   'System.Filepath',
         \]
 endfunction
 function! s:_vital_loaded(V) abort
@@ -17,12 +18,10 @@ let s:R = 'vital: SourceMap: '
 
 " type Loc = Array<number, 2>
 "    - 0-indexed, [line, col]
-" type SrcInfo = { loc: Loc, source?: string, name?: string, resolved?: string }
+" type SrcInfo = { loc: Loc, source?: string, name?: string }
 
 
 let s:v3 = { 'version': 3 }
-let s:v3.out_locs = []
-let s:v3.src_info = []
 function! s:new() abort
   let self = deepcopy(s:v3)
   return self
@@ -276,8 +275,15 @@ function! s:v3.to_json() abort
     endwhile
     let res.mappings = join(segments, ';')
   else
+    let res.sections = []
     for section in self.sections
-      " TODO
+      let res_sec = { 'offset': section.offset }
+      if has_key(section, 'url')
+        let res_sec.url = section.url
+      else
+        let res_sec.map = section.map.to_json()
+      endif
+      call add(res.section, res_sec)
     endfor
   endif
   return res
@@ -301,28 +307,11 @@ function! s:v3.add_mapping(out, info) abort
   call add(self.mappings, [a:out, a:info])
 endfunction
 
-
-" @param {Loc} out Location for generated code
-" @param {SrcInfo | null} info
-function! s:v3.add_mapping(out, info) abort
-  if !self.is_mapping_mode() | throw s:R.'Using sections mode.' | endif
-  call add(self.mappings, [a:out, a:info])
-endfunction
-
-" @param {Loc} out Location for generated code
-" @param {SrcInfo | null} info
+" @param {Section} section
 function! s:v3.add_section(section) abort
   if self.is_mapping_mode() | throw s:R.'Using mappings mode.' | endif
   call add(self.section, a:section)
 endfunction
-
-" @param {SourceMap::v3} map1
-" @param {SourceMap::v3} map2
-" @return {SourceMap::v3} composited
-function! s:composite(map1, map2) abort
-  " TODO
-endfunction
-
 
 function! s:advance_offset(loc, offset) abort
   if a:loc[0] == 0 | return [a:offset[0], a:offset[1] + a:loc[1]] | endif

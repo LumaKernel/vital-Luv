@@ -3,7 +3,7 @@ Describe SourceMap.v3
   Before all
     let v3 = vital#vital#import('SourceMap.v3')
 
-    let json1 = json_decode(join(readfile('test/unit/SourceMap/testfiles/main.js.map'), ''))
+    let json1 = json_decode(join(readfile('test/unit/SourceMap/fixtures/main.js.map'), ''))
 
     let map1 = v3.from_json(json1)
   End
