@@ -38,7 +38,7 @@ Describe Vital/ProfileParser
         call Dump([json_encode(result)], out_path)
 
         if !filereadable(exp_path)
-          call mkdir(fnamemodify(exp_path, ':p:h'), 'p')
+          silent! call mkdir(fnamemodify(exp_path, ':p:h'), 'p')
           call writefile([json_encode(result)], exp_path)
         endif
       endfor

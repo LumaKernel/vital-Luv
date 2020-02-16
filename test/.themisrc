@@ -64,8 +64,8 @@ function! AssertSnapshot(data, dir, filename) abort
   let out = resolve(a:dir . '/out/' . a:filename)
   let exp = resolve(a:dir . '/expected/' . a:filename)
 
-  call mkdir(fnamemodify(out, ':p:h'), 'p')
-  call mkdir(fnamemodify(exp, ':p:h'), 'p')
+  silent! call mkdir(fnamemodify(out, ':p:h'), 'p')
+  silent! call mkdir(fnamemodify(exp, ':p:h'), 'p')
 
   call writefile([json_encode(a:data)], out)
 
