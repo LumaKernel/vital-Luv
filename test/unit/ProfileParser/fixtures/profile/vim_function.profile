@@ -13,7 +13,7 @@ count  total (s)   self (s)
                             
 
 FUNCTION  F()
-    Defined: /test/original/some/../test_function.vim:2
+    Defined: /test/original/some/../../test_function.vim:2
 Called 1 time
 Total time:   0.000008
  Self time:   0.000008

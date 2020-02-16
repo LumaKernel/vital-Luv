@@ -23,6 +23,7 @@ Describe Vital/ProfileParser
       " snapshot test
       let g:results = {}
       let testprofiles = glob('test/unit/ProfileParser/fixtures/profile/vim_*.profile', 1, 1)
+      let testprofiles += glob('test/unit/ProfileParser/fixtures/profile/nvim_*.profile', 1, 1)
       for testfile in testprofiles
         let filename = fnamemodify(testfile, ':t:r')
         let out_path = 'test/unit/ProfileParser/fixtures/out/' . filename . '.json'
@@ -34,10 +35,7 @@ Describe Vital/ProfileParser
         let result = PP.parse(profile)
         let g:results[filename] = result
 
-        if $TEST_THEMIS_VERBOSE ==# ''
-          call mkdir(fnamemodify(out_path, ':p:h'), 'p')
-          call writefile([json_encode(result)], out_path)
-        endif
+        call Dump([json_encode(result)], out_path)
 
         if !filereadable(exp_path)
           call mkdir(fnamemodify(exp_path, ':p:h'), 'p')
@@ -63,6 +61,12 @@ Describe Vital/ProfileParser
       Assert Equals(len(g:results['vim_function'][0].lines), 7)
       Assert Equals(g:results['vim_function'][0].lines[0].content, '')
       Assert Equals(g:results['vim_function'][0].lines[1].content, 'function! F()')
+
+      Assert Equals(len(g:results['nvim_function']), 4)
+      Assert Equals(g:results['nvim_function'][0].type, 'script')
+      Assert Equals(len(g:results['nvim_function'][0].lines), 7)
+      Assert Equals(g:results['nvim_function'][0].lines[0].content, '')
+      Assert Equals(g:results['nvim_function'][0].lines[1].content, 'function! F()')
     End
     It parses spaces
       Assert Equals(g:results['vim_comments'][0].lines[0].content, '')
@@ -90,6 +94,17 @@ Describe Vital/ProfileParser
     End
     It resolves path
       Assert NotMatch(g:results['vim_function'][1].defined.path, '\.\.')
+    End
+  End
+  Describe .merge()
+    It merges functions and scripts to one data per one script
+      let data = PP.merge(g:results['vim_function'])
+      exe AssertSnapshot(
+            \ data,
+            \ 'test/unit/ProfileParser/fixtures', 'vim_function_merged.json')
+      Assert Equals(len(data), 1)
+      Assert Equals(data[0].lines[1].count, 1)
+      Assert Equals(data[0].lines[2].count, 1)
     End
   End
 End

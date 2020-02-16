@@ -171,3 +171,62 @@ function! s:_parse_line(line, last_key, space_num) abort
   return res
 endfunction
 
+" @param {ProfileJSON} profile
+function s:merge(...) abort
+  let queue = copy(a:000)
+  let scripts = {}
+  let functions = []
+  let res = []
+  while len(queue)
+    let section = remove(queue, 0)
+    if type(section) == v:t_list
+      let queue += section
+    else
+      if section.type ==# 'script'
+        if has_key(scripts, section.path)
+         call s:_merge_script(scripts[section.path], deepcopy(section))
+        else
+          let scripts[section.path] = deepcopy(section)
+        endif
+      elseif section.type ==# 'function' && has_key(section, 'defined')
+        call add(functions, section)
+      endif
+    endif
+  endwhile
+
+  for func in functions
+    let path = func.defined.path
+    if has_key(scripts, path)
+      call s:_merge_function(scripts[path], deepcopy(func))
+    endif
+  endfor
+
+  return values(scripts)
+endfunction
+
+
+function! s:_merge_script(script0, script1) abort
+  let idx = 0
+  while idx < len(a:script1.lines)
+    let line = a:script1.lines[idx]
+    let a:script0.lines[didx].count =
+          \ get(a:script0.lines[idx], 'count', 0)
+          \ + line.count
+    let idx += 1
+  endwhile
+endfunction
+
+function! s:_merge_function(script, func) abort
+  let defined_line = a:func.defined.line
+  let idx = 0
+  while idx < len(a:func.lines)
+    let line = a:func.lines[idx]
+    if defined_line + idx < len(a:script.lines)
+      let a:script.lines[defined_line + idx].count =
+            \ get(a:script.lines[defined_line + idx], 'count', 0)
+            \ + line.count
+    endif
+    let idx += 1
+  endwhile
+endfunction
+

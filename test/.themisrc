@@ -60,3 +60,24 @@ function! Dump(data, filename) abort
   endtry
 endfunction
 
+function! AssertSnapshot(data, dir, filename) abort
+  let out = resolve(a:dir . '/out/' . a:filename)
+  let exp = resolve(a:dir . '/expected/' . a:filename)
+
+  call mkdir(fnamemodify(out, ':p:h'), 'p')
+  call mkdir(fnamemodify(exp, ':p:h'), 'p')
+
+  call writefile([json_encode(a:data)], out)
+
+  if !filereadable(exp)
+    call writefile([json_encode(a:data)], exp)
+  endif
+
+  let exp_data = json_decode(join(readfile(exp), ''))
+
+  let g:_cached_data = a:data
+  let g:_cached_exp_data = exp_data
+  
+  return 'Assert Equals(g:_cached_data, g:_cached_exp_data)'
+endfunction
+

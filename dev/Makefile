@@ -31,4 +31,4 @@ $(profile_dir)/nvim_%.profile: $(vimscript_dir)/test_%.vim
 .PHONY: profiles-vim
 profiles-replace: $(vim_profiled) $(nvim_profiled)
 	sed -i -e 's/SCRIPT\( \+\).*\/\([^/]\+\.vim\)/SCRIPT\1\/test\/\2/' $(vim_profiled) $(nvim_profiled)
-	sed -i -e 's/\( \+\)Defined:\( \+\).*\/\([^/]\+\.vim\)/\1Defined:\2\/test\/original\/some\/..\/\3/' $(vim_profiled) $(nvim_profiled)
+	sed -i -e 's/\( \+\)Defined:\( \+\).*\/\([^/]\+\.vim\)/\1Defined:\2\/test\/original\/some\/..\/..\/\3/' $(vim_profiled) $(nvim_profiled)

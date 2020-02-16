@@ -9,6 +9,6 @@
 
 " @param {ProfileJSON} profile
 function! s:profile_to_lcov(profile) abort
-
+  
   return res
 endfunction
