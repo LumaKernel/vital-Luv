@@ -5,9 +5,14 @@
 " Author: Luma
 " License: Unlicense
 
+" XXX : Extensiablity
+"   - Add ignore lines
+"   - Add ignore commands
+"   - Add ignore patterns
+"   - ignore vs through
+
 let s:_possible_comment_pat = '\%(".*\)\?'
 let s:_continue_pat = '^\s*\\'
-
 
 function! s:_vital_loaded(V) abort
   let s:_endif_pat = s:_make_ex_pat('en', 'dif')

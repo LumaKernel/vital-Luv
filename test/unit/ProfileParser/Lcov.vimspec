@@ -44,11 +44,14 @@ Describe Vital/ProfileParser
       Assert True(funcs._is_instrumental('endifff'))
       " missing spell
       Assert True(funcs._is_instrumental('endfunctoin'))
+      " buggy begining
+      " This can happen when writing 3 backslashes in one line
+      Assert True(funcs._is_instrumental('\ \ endwhi'))
       " buggy ending
       Assert True(funcs._is_instrumental('endwhi  \ \ \ \ '))
-      " buggy ending
+      " multi Ex commands
       Assert True(funcs._is_instrumental('endfo|echo 1'))
-      " buggy ending
+      " prefix
       Assert True(funcs._is_instrumental('sil! endi'))
     End
   End
