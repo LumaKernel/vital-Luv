@@ -6,7 +6,7 @@ Describe Async.Promise.Hack
     let E = Promise.get_default_error_handler()
     call Promise.set_debug(1)
     call Promise.set_timeout(1)
-    let sleep_time = has('win32') ? '100m' : '10m'
+    let sleep_time = has('win32') ? '100m' : '20m'
   End
 
   Describe .new()

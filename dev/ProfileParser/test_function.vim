@@ -1,6 +1,10 @@
 
-function! F()
-  echomsg 'string'
+function!
+      \ F()
+  echomsg
+   \ 'string'
+   \ . 'string'
+  echo "hello"
 endfunction
 
 call F()

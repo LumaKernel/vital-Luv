@@ -58,15 +58,17 @@ Describe Vital/ProfileParser
     It parses basic lines
       Assert Equals(len(g:results['vim_function']), 4)
       Assert Equals(g:results['vim_function'][0].type, 'script')
-      Assert Equals(len(g:results['vim_function'][0].lines), 7)
+      Assert Equals(len(g:results['vim_function'][0].lines), 11)
       Assert Equals(g:results['vim_function'][0].lines[0].content, '')
-      Assert Equals(g:results['vim_function'][0].lines[1].content, 'function! F()')
+      Assert Equals(g:results['vim_function'][0].lines[1].content, 'function!')
+      Assert Equals(g:results['vim_function'][0].lines[2].content, '      \ F()')
 
       Assert Equals(len(g:results['nvim_function']), 4)
       Assert Equals(g:results['nvim_function'][0].type, 'script')
-      Assert Equals(len(g:results['nvim_function'][0].lines), 7)
+      Assert Equals(len(g:results['nvim_function'][0].lines), 11)
       Assert Equals(g:results['nvim_function'][0].lines[0].content, '')
-      Assert Equals(g:results['nvim_function'][0].lines[1].content, 'function! F()')
+      Assert Equals(g:results['nvim_function'][0].lines[1].content, 'function!')
+      Assert Equals(g:results['nvim_function'][0].lines[2].content, '      \ F()')
     End
     It parses spaces
       Assert Equals(g:results['vim_comments'][0].lines[0].content, '')
@@ -82,7 +84,7 @@ Describe Vital/ProfileParser
       Assert Equals(g:results['vim_function'][1].defined.line, 2)
       Assert Equals(g:results['vim_function'][1].name, 'F()')
       Assert Equals(g:results['vim_function'][1].lines[0].count, 1)
-      Assert Equals(g:results['vim_function'][1].lines[0].content, "  echomsg 'string'")
+      Assert Equals(g:results['vim_function'][1].lines[0].content, "  echomsg 'string' . 'string'")
     End
     It parses functions list section
       Assert Equals(g:results['vim_function'][2].type, 'function_list')
@@ -104,7 +106,8 @@ Describe Vital/ProfileParser
             \ 'test/unit/ProfileParser/fixtures', 'vim_function_merged.json')
       Assert Equals(len(data), 1)
       Assert Equals(data[0].lines[1].count, 1)
-      Assert Equals(data[0].lines[2].count, 1)
+      Assert Equals(data[0].lines[3].count, 1)
+      Assert Equals(data[0].lines[6].count, 1)
     End
   End
 End
