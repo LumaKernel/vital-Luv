@@ -51,7 +51,7 @@ jobs:
       run: git clone --depth 1 --branch v1.5.4 --single-branch https://github.com/thinca/vim-themis ~/themis
 
     - name: Install vcov
-      run: git clone --depth 1 --branch v0.1.6 --single-branch https://github.com/LumaKernel/vcov ~/vcov
+      run: git clone --depth 1 --branch v0.1.7 --single-branch https://github.com/LumaKernel/vcov ~/vcov
 
     - uses: actions/checkout@v2
 
