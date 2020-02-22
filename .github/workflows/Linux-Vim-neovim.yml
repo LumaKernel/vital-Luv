@@ -54,7 +54,7 @@ jobs:
       run: git clone --depth 1 --branch v1.5.4 --single-branch https://github.com/thinca/vim-themis ~/themis
 
     - name: Install vcov
-      run: git clone --depth 1 --branch v0.1.4 --single-branch https://github.com/LumaKernel/vcov ~/vcov
+      run: git clone --depth 1 --branch v0.1.6 --single-branch https://github.com/LumaKernel/vcov ~/vcov
 
     - uses: actions/checkout@v2
 
@@ -91,9 +91,15 @@ jobs:
         file: ./lcov.txt
         fail_ci_if_error: false #optional (default = false)
 
-    - name: Coveralls
+    - name: Coveralls Parallel
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: ./lcov.txt
+        parallel: true
+        path-to-lcov: ./lcov.txt # optional (default value)
 
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        parallel-finished: true
