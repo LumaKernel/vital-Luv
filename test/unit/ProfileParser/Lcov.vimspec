@@ -62,7 +62,7 @@ Describe Vital/ProfileParser
       exe AssertSnapshot(lcov, 'test/unit/ProfileParser/fixtures', 'vim_function.lcov.info.json')
       Assert Equals(lcov[0], 'TN:')
       Assert Match(lcov[1], '^SF:')
-      Assert Equals(lcov[-1], 'end_of_content')
+      Assert Equals(lcov[-1], 'end_of_record')
     End
   End
 

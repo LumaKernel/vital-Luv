@@ -84,12 +84,14 @@ function! s:_to_lcov_one(section) abort
     endif
     let idx += 1
   endwhile
-  call add(res, printf('BRF:%d', branch_found))
-  call add(res, printf('BRH:%d', branch_hit))
+  if branch_found
+    call add(res, printf('BRH:%d', branch_hit))
+    call add(res, printf('BRF:%d', branch_found))
+  endif
 
-  call add(res, printf('LF:%d', line_found))
   call add(res, printf('LH:%d', line_hit))
-  call add(res, 'end_of_content')
+  call add(res, printf('LF:%d', line_found))
+  call add(res, 'end_of_record')
   return res
 endfunction
 
