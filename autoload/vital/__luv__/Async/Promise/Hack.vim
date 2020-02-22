@@ -20,7 +20,7 @@ endfor
 
 " XXX : If vital supports `extend` feature,
 "       below must be replaced to that.
-let to_extend = ['is_available', 'is_promise', 'wait', 'noop']
+let to_extend = ['is_available', 'is_promise', 'wait', 'noop', 'on_unhandled_rejection']
 for funcname in to_extend
   exe printf(join([
         \   'function! s:%s(...) abort',
