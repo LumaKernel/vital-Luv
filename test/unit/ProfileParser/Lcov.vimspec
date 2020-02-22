@@ -21,6 +21,7 @@ Describe Vital/ProfileParser
     It judges the line like end~ Ex command not instrumental
       Assert False(funcs._is_instrumental('en'))
       Assert False(funcs._is_instrumental(' end'))
+      Assert False(funcs._is_instrumental(" \t  endif"))
       Assert False(funcs._is_instrumental('endwhile  " my end'))
       Assert False(funcs._is_instrumental('   endwhile  " my end'))
       Assert False(funcs._is_instrumental('endfunction'))

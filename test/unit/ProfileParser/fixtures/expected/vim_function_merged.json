@@ -1,0 +1,1 @@
+[{"path":"/test/test_function.vim","total_time":1.49e-4,"self_time":1.42e-4,"type":"script","lines":[{"content":""},{"self_time":3.0e-6,"count":1,"content":"function! F()"},{"count":1,"content":"  echomsg 'string'"},{"content":"endfunction"},{"content":""},{"total_time":5.0e-5,"self_time":4.3e-5,"count":1,"content":"call F()"},{"content":""}],"count":1}]
