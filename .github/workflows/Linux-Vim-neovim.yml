@@ -91,3 +91,9 @@ jobs:
         file: ./lcov.txt
         fail_ci_if_error: false #optional (default = false)
 
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: ./lcov.txt
+
