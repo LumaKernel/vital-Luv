@@ -21,7 +21,7 @@ jobs:
         name:
           - vim-v8.2
           - vim-v8.0
-          - neovim-nightly
+          # - neovim-nightly
           - neovim-v0.4.3
           - neovim-v0.2.0
         include:

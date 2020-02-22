@@ -21,7 +21,7 @@ jobs:
         name:
           - vim-v8.2
           - vim-v8.1
-          - neovim-nightly
+          # - neovim-nightly
           - neovim-v0.4.3
         include:
           - name: vim-v8.2
@@ -53,6 +53,9 @@ jobs:
     - name: Install vim-themis
       run: git clone --depth 1 --branch v1.5.4 --single-branch https://github.com/thinca/vim-themis ~/themis
 
+    - name: Install vcov
+      run: git clone --depth 1 --branch v0.1.4 --single-branch https://github.com/LumaKernel/vcov ~/vcov
+
     - uses: actions/checkout@v2
 
     - name: Run test with Vim
@@ -79,13 +82,12 @@ jobs:
 
     - name: Make coverage report
       run: |
-        pip install coverage --user
-        pip install covimerage --user
-        python -m covimerage write_coverage vim-profile.txt
-        python -m coverage xml
+        export PATH=~/vcov/bin:$PATH
+        vcov $THEMIS_PROFILE -o lcov.txt
 
     - uses: codecov/codecov-action@v1
       with:
         token: ${{ secrets.CODECOV_TOKEN }} #required
+        file: ./lcov.txt
         fail_ci_if_error: false #optional (default = false)
 
