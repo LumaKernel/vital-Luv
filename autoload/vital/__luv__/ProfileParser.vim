@@ -9,7 +9,14 @@ let s:section_types = [
 let s:float_pat = '\%(\d\+\%(\.\d\+\)\?\)'  " like  0.0  0  , safe for str2float()
 let s:_continue_pat = '^\s*\\'
 
-let s:F = vital#luv#import('System.Filepath')
+function! s:_vital_depends() abort
+  return [
+        \ 'System.Filepath',
+        \]
+endfunction
+function! s:_vital_loaded(V) abort
+  let s:F = a:V.import('System.Filepath')
+endfunction
 
 function! s:normalize_path(path) abort
   return s:F.unify_separator(s:F.remove_last_separator(s:F.realpath(s:F.abspath(a:path))))
