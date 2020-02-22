@@ -210,6 +210,9 @@ function! s:_merge_script(script0, script1) abort
   let idx = 0
   while idx < len(a:script1.lines)
     let line = a:script1.lines[idx]
+    if len(a:script0.lines) < idx
+      call add(a:script0.lines, copy(a:script1.lines[idx]))
+    endif
     let a:script0.lines[idx].count =
           \ get(a:script0.lines[idx], 'count', 0)
           \ + get(line, 'count', 0)
