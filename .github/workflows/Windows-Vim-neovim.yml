@@ -38,6 +38,9 @@ jobs:
           - name: neovim-v0.2.0
             neovim-version: v0.2.0
 
+    env:
+      THEMIS_PROFILE: vim-profile.txt
+
     steps:
     - name: Install Vim
       if: startsWith(matrix.name, 'vim')
@@ -52,7 +55,7 @@ jobs:
     - name: Install vim-themis
       run: git clone --depth 1 --branch v1.5.4 --single-branch https://github.com/thinca/vim-themis $env:USERPROFILE/themis
     - name: Install vcov
-      run: git clone --depth 1 --branch v0.1.5 --single-branch https://github.com/LumaKernel/vcov $env:USERPROFILE/vcov
+      run: git clone --depth 1 --branch v0.1.6 --single-branch https://github.com/LumaKernel/vcov $env:USERPROFILE/vcov
 
     - uses: actions/checkout@v2
 
@@ -82,7 +85,7 @@ jobs:
       run: |
         $env:PATH = "$env:USERPROFILE\vcov\bin;$env:PATH"
         vcov --version
-        vcov $THEMIS_PROFILE -o lcov.txt
+        vcov $env:THEMIS_PROFILE -o lcov.txt
 
     - uses: codecov/codecov-action@v1
       with:
@@ -90,9 +93,15 @@ jobs:
         file: ./lcov.txt
         fail_ci_if_error: false #optional (default = false)
 
-    - name: Coveralls
+    - name: Coveralls Parallel
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: ./lcov.txt
+        parallel: true
+        path-to-lcov: ./lcov.txt # optional (default value)
 
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        parallel-finished: true
