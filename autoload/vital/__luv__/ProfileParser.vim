@@ -9,6 +9,12 @@ let s:section_types = [
 let s:float_pat = '\%(\d\+\%(\.\d\+\)\?\)'  " like  0.0  0  , safe for str2float()
 let s:_continue_pat = '^\s*\\'
 
+let s:F = vital#luv#import('System.Filepath')
+
+function! s:normalize_path(path) abort
+  return s:F.unify_separator(s:F.remove_last_separator(s:F.realpath(s:F.abspath(a:path))))
+endfunction
+
 function! s:parse(lines) abort
   let next = 0
   let buf = []
@@ -184,7 +190,7 @@ function s:merge(...) abort
       let queue += section
     else
       if section.type ==# 'script'
-        let path = fnamemodify(resolve(expand(section.path)), ':p')
+        let path = s:normalize_path(section.path)
         if has_key(scripts, path)
          call s:_merge_script(scripts[path], deepcopy(section))
         else
@@ -197,7 +203,7 @@ function s:merge(...) abort
   endwhile
 
   for func in functions
-    let path = fnamemodify(resolve(expand(func.defined.path)), ':p')
+    let path = s:normalize_path(func.defined.path)
     if has_key(scripts, path)
       call s:_merge_function(scripts[path], deepcopy(func))
     endif
