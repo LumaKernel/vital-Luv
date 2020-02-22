@@ -1,5 +1,10 @@
+" Tools to provide user-friendly plugin options
+"
+" Author: Luma
+" License: Unlicense
 
-let s:_providers = {}
+let
+      \ s:_providers = {}
 function! s:_vital_loaded(V) abort
   let s:L = a:V.import('Data.List')
 

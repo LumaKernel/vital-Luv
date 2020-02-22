@@ -266,7 +266,7 @@ Describe Options
   Describe .generate_document()
     It creates a formatted document
       let doc = opts1.generate_document()
-      call writefile(doc + ['vim:tw=78:ts=8:noet:ft=help:norl:cole=2'], '.dev/doctest.txt')
+      call Dump(doc + ['vim:tw=78:ts=8:noet:ft=help:norl:cole=2'], '.dev/doctest.txt')
 
       Assert Equals(strlen(matchstr(doc[0], '^\t*')), 5)
       Assert Equals(doc[1], 'g:namespace_test_Options1_a1')

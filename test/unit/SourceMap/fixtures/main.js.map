@@ -1,0 +1,14 @@
+{
+  "version": 3,
+  "sources": [
+    "b.js",
+    "c.js"
+  ],
+  "names": [],
+  "mappings": ";;;;;;AACA;SACe,C;;;;;;;0BAAf;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,iBACS,CADT;AAAA;AAAA;AAAA;;AAAA;AAAA,mBAEqB,IAAI,EAFzB;;AAAA;AAEU,YAAA,EAFV;;AAAA,iBAGQ,EAHR;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,G;;;;;ACDA,SAAS,IAAT,GAAgB;AACd,SAAO,IAAI,OAAJ,CAAY,UAAA,OAAO;AAAA,WAAI,UAAU,CAAC,OAAD,EAAU,IAAV,CAAd;AAAA,GAAnB,CAAP;AACD",
+  "file": "main.js",
+  "sourcesContent": [
+    "\n// コメント\nasync function f() {\n  while (1) {\n    const ok = await isOk()\n    if (ok) break\n  }\n}\n\n",
+    "\nfunction isOk() {\n  return new Promise(resolve => setTimeout(resolve, 1000))\n}\n\n"
+  ]
+}

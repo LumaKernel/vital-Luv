@@ -38,6 +38,9 @@ jobs:
           - name: neovim-v0.2.0
             neovim-version: v0.2.0
 
+    env:
+      TEST_THEMIS_VERBOSE: 0
+
     steps:
     - name: Install Vim
       if: startsWith(matrix.name, 'vim')

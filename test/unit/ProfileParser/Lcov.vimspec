@@ -1,0 +1,71 @@
+
+Describe Vital/ProfileParser
+  Before all
+    let PP = vital#vital#import('ProfileParser')
+    let Lcov = vital#vital#import('ProfileParser.Lcov')
+    let funcs = themis#helper('scope').funcs('autoload/vital/__luv__/ProfileParser/Lcov.vim')
+
+    let profile = PP.parse(readfile('test/unit/ProfileParser/fixtures/profile/vim_function.profile'))
+    let profile = PP.merge(profile)
+  End
+
+  Describe ._is_instrumental()
+    It judges the empty lines not instrumental
+      Assert False(funcs._is_instrumental('#! ok'))
+      Assert False(funcs._is_instrumental(''))
+      Assert False(funcs._is_instrumental("\t"))
+      Assert False(funcs._is_instrumental('  " hi  \ '))
+      Assert False(funcs._is_instrumental("\t" . ' " comment'))
+    End
+
+    It judges the line like end~ Ex command not instrumental
+      Assert False(funcs._is_instrumental('en'))
+      Assert False(funcs._is_instrumental(' end'))
+      Assert False(funcs._is_instrumental(" \t  endif"))
+      Assert False(funcs._is_instrumental('endwhile  " my end'))
+      Assert False(funcs._is_instrumental('   endwhile  " my end'))
+      Assert False(funcs._is_instrumental('endfunction'))
+      Assert False(funcs._is_instrumental('endwhile  '))
+      Assert False(funcs._is_instrumental(' " endfo  '))
+      Assert False(funcs._is_instrumental(' " endfo  " '))
+      Assert False(funcs._is_instrumental('endfor  " '))
+    End
+
+    It judges the line like User defined Ex command and others instrumental
+      Assert True(funcs._is_instrumental('for i in range(42)'))
+      Assert True(funcs._is_instrumental('  echo "hello"'))
+      Assert True(funcs._is_instrumental('call MyFunc()  " this is my func'))
+      Assert True(funcs._is_instrumental('End'))
+      Assert True(funcs._is_instrumental('END'))
+      Assert True(funcs._is_instrumental('ENDIF'))
+    End
+
+    It judges the missing end~ Ex commands instrumental
+      " trail chars
+      Assert True(funcs._is_instrumental('endifff'))
+      " missing spell
+      Assert True(funcs._is_instrumental('endfunctoin'))
+      " buggy begining
+      " This can happen when writing 3 backslashes in one line
+      Assert True(funcs._is_instrumental('\ \ endwhi'))
+      " buggy ending
+      Assert True(funcs._is_instrumental('endwhi  \ \ \ \ '))
+      " multi Ex commands
+      Assert True(funcs._is_instrumental('endfo|echo 1'))
+      " prefix
+      Assert True(funcs._is_instrumental('sil! endi'))
+    End
+  End
+
+  Describe .profile_to_lcov()
+    It converts profile to lcov format
+      let lcov = Lcov.profile_to_lcov(profile)
+      exe AssertSnapshot(lcov, 'test/unit/ProfileParser/fixtures', 'vim_function.lcov.info.json')
+      Assert Equals(lcov[0], 'TN:')
+      Assert Match(lcov[1], '^SF:')
+      Assert Equals(lcov[-1], 'end_of_record')
+    End
+  End
+
+End
+

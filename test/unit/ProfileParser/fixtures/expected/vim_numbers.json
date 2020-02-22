@@ -1,0 +1,1 @@
+[{"path":"/test/test_numbers.vim","total_time":7.5e-5,"self_time":7.5e-5,"type":"script","lines":[{"content":""},{"self_time":4.0e-6,"count":1,"content":"123"},{"self_time":2.0e-6,"count":1,"content":"123  456  789"},{"content":""}],"count":1}]
