@@ -90,6 +90,10 @@ jobs:
         export PATH=~/vcov/bin:$PATH
         vcov $THEMIS_PROFILE -o lcov.txt
 
+    - name: cat lcov.txt
+      if: matrix.coverage
+      run: cat lcov.txt
+
     - uses: codecov/codecov-action@v1
       if: matrix.coverage
       with:
