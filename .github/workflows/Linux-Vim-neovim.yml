@@ -24,12 +24,15 @@ jobs:
         include:
           - name: vim-v8.2
             vim-url: v8.2.0182/GVim-v8.2.0182.glibc2.15-x86_64.AppImage
+            coverage: true
           - name: vim-v8.1
             vim-url: v8.1.2414/GVim-v8.1.2414.glibc2.15-x86_64.AppImage
           - name: neovim-nightly
             neovim-version: nightly
+            coverage: true
           - name: neovim-v0.4.3
             neovim-version: v0.4.3
+            coverage: true
 
     env:
       THEMIS_PROFILE: vim-profile.txt
@@ -82,17 +85,20 @@ jobs:
       run: cat $THEMIS_PROFILE
 
     - name: Make coverage report
+      if: matrix.coverage
       run: |
         export PATH=~/vcov/bin:$PATH
         vcov $THEMIS_PROFILE -o lcov.txt
 
     - uses: codecov/codecov-action@v1
+      if: matrix.coverage
       with:
         token: ${{ secrets.CODECOV_TOKEN }} #required
         file: ./lcov.txt
         fail_ci_if_error: false #optional (default = false)
 
     - name: Coveralls Parallel
+      if: matrix.coverage
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -100,6 +106,7 @@ jobs:
         path-to-lcov: ./lcov.txt # optional (default value)
 
     - name: Coveralls Finished
+      if: matrix.coverage
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
