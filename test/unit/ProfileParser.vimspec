@@ -18,6 +18,12 @@ Describe Vital/ProfileParser
     End
   End
 
+  Describe s:_normalize_path()
+    It normalizes the paths
+      Assert Equals(_PP._normalize_path('~/a/..//'), expand('~'))
+    End
+  End
+
   Describe .parse()
     It outputs same as snapshots
       " snapshot test
