@@ -80,7 +80,7 @@ jobs:
         themis
 
     - name: cat profile
-      run: cat $THEMIS_PROFILE
+      run: cat $env:THEMIS_PROFILE
 
     - name: Make coverage report
       run: |
