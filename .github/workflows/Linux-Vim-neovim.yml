@@ -4,7 +4,6 @@ on:
   push:
     branches:
     - master
-    - test-*
   pull_request:
     branches:
     - master
@@ -84,10 +83,12 @@ jobs:
     - name: cat profile
       run: cat $THEMIS_PROFILE
 
+    # NOTE: older versions of vim, can't produce the profile including sufficient information.
     - name: Make coverage report
       if: matrix.coverage
       run: |
         export PATH=~/vcov/bin:$PATH
+        vcov --version
         vcov $THEMIS_PROFILE -o lcov.txt
 
     - name: cat lcov.txt

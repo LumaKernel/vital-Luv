@@ -4,7 +4,6 @@ on:
   push:
     branches:
     - master
-    - test-*
   pull_request:
     branches:
     - master
@@ -85,6 +84,7 @@ jobs:
     - name: cat profile
       run: cat $env:THEMIS_PROFILE
 
+    # NOTE: older versions of vim, can't produce the profile including sufficient information.
     - name: Make coverage report
       if: matrix.coverage
       run: |
