@@ -2,6 +2,7 @@
 [![Windows Vim/neovim](https://github.com/LumaKernel/vital-Luv/workflows/Windows%20Vim/neovim/badge.svg)](https://github.com/LumaKernel/vital-Luv/actions?query=workflow%3A%22Windows+Vim%2Fneovim%22)
 [![codecov](https://codecov.io/gh/LumaKernel/vital-Luv/branch/master/graph/badge.svg)](https://codecov.io/gh/LumaKernel/vital-Luv)
 [![coveralls](https://coveralls.io/repos/github/LumaKernel/vital-Luv/badge.svg?branch=master)](https://coveralls.io/github/LumaKernel/vital-Luv?branch=master)
+[![Powered by vital.vim](https://img.shields.io/badge/powered%20by-vital.vim-80273f.svg?style=flat-square)](https://github.com/vim-jp/vital.vim)
 
 Vital-Luv is my approaches to make a general plugins.
 
