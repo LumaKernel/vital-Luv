@@ -78,6 +78,9 @@ jobs:
         themis --version
         themis
 
+    - name: cat profile
+      run: cat $THEMIS_PROFILE
+
     - name: Make coverage report
       run: |
         $env:PATH = "$env:USERPROFILE\vcov\bin;$env:PATH"
