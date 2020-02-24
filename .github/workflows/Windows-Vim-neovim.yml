@@ -25,13 +25,16 @@ jobs:
           - name: vim-v8.2
             vim-url: https://github.com/vim/vim-win32-installer/releases/download/v8.2.0230/gvim_8.2.0230_x64.zip
             vim-ver-path: vim82
+            coverage: true
           - name: vim-v8.0
             vim-url: https://github.com/vim/vim-win32-installer/releases/download/v8.0.0003/gvim_8.0.0003_x64.zip
             vim-ver-path: vim80
           - name: neovim-nightly
             neovim-version: nightly
+            coverage: true
           - name: neovim-v0.4.3
             neovim-version: v0.4.3
+            coverage: true
           - name: neovim-v0.2.0
             neovim-version: v0.2.0
 
@@ -52,7 +55,7 @@ jobs:
     - name: Install vim-themis
       run: git clone --depth 1 --branch v1.5.4 --single-branch https://github.com/thinca/vim-themis $env:USERPROFILE/themis
     - name: Install vcov
-      run: git clone --depth 1 --branch v0.1.9 --single-branch https://github.com/LumaKernel/vcov $env:USERPROFILE/vcov
+      run: git clone --depth 1 --branch v0.2.0 --single-branch https://github.com/LumaKernel/vcov $env:USERPROFILE/vcov
 
     - uses: actions/checkout@v2
 
@@ -78,19 +81,30 @@ jobs:
         themis --version
         themis
 
+    - name: cat profile
+      run: cat $env:THEMIS_PROFILE
+
+    # NOTE: older versions of vim, can't produce the profile including sufficient information.
     - name: Make coverage report
+      if: matrix.coverage
       run: |
         $env:PATH = "$env:USERPROFILE\vcov\bin;$env:PATH"
         vcov --version
         vcov $env:THEMIS_PROFILE -o lcov.txt
 
+    - name: cat lcov.txt
+      if: matrix.coverage
+      run: cat lcov.txt
+
     - uses: codecov/codecov-action@v1
+      if: matrix.coverage
       with:
         token: ${{ secrets.CODECOV_TOKEN }} #required
         file: ./lcov.txt
         fail_ci_if_error: false #optional (default = false)
 
     - name: Coveralls Parallel
+      if: matrix.coverage
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -98,6 +112,7 @@ jobs:
         path-to-lcov: ./lcov.txt # optional (default value)
 
     - name: Coveralls Finished
+      if: matrix.coverage
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
