@@ -91,17 +91,17 @@ jobs:
       run: |
         export PATH=$HOME/vcov/bin:$PATH
         vcov --version
-        vcov $THEMIS_PROFILE -o lcov.info
+        vcov $THEMIS_PROFILE -o lcov-${{ runner.os }}.info
 
-    - name: cat lcov.info
+    - name: cat lcov-${{ runner.os }}.info
       if: matrix.coverage
-      run: cat lcov.info
+      run: cat lcov-${{ runner.os }}.info
 
     - uses: codecov/codecov-action@v1
       if: matrix.coverage
       with:
         token: ${{ secrets.CODECOV_TOKEN }} #required
-        file: ./lcov.info
+        file: ./lcov-${{ runner.os }}.info
         fail_ci_if_error: false #optional (default = false)
 
     # - name: Coveralls
@@ -109,7 +109,7 @@ jobs:
     #   uses: coverallsapp/github-action@master
     #   with:
     #     github-token: ${{ secrets.GITHUB_TOKEN }}
-    #     path-to-lcov: ./lcov.info
+    #     path-to-lcov: ./lcov-${{ runner.os }}.info
     - name: Coveralls Parallel
       if: matrix.coverage
       # uses: coverallsapp/github-action@master
@@ -117,7 +117,7 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         parallel: true
-        path-to-lcov: ./lcov.info # optional (default value)
+        path-to-lcov: ./lcov-${{ runner.os }}.info # optional (default value)
     - name: Coveralls Finished
       # uses: coverallsapp/github-action@master
       uses: jlabeit/github-action@fix-paralle-builds
