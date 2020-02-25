@@ -44,9 +44,6 @@ jobs:
       COVERALLS_SERVICE_NUMBER: ${{ matrix.COVERALLS_SERVICE_NUMBER }}
 
     steps:
-    - name: sleep
-      if: startsWith(matrix.name, 'vim')
-      run: sleep 300
     - name: Install Vim
       if: startsWith(matrix.name, 'vim')
       run: |
