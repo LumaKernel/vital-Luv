@@ -122,7 +122,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: cat lcov.info
-      run: cat lcov.info
+      run: cat lcov.info || true
 
     - name: Coveralls Finished
       uses: coverallsapp/github-action@master
