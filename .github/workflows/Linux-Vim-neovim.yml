@@ -96,17 +96,17 @@ jobs:
       run: |
         export PATH=$HOME/vcov/bin:$PATH
         vcov --version
-        vcov $THEMIS_PROFILE -o lcov-${{ runner.os }}.info
+        vcov $THEMIS_PROFILE -o lcov.info
 
-    - name: cat lcov-${{ runner.os }}.info
+    - name: cat lcov.info
       if: matrix.coverage
-      run: cat lcov-${{ runner.os }}.info
+      run: cat lcov.info
 
     - uses: codecov/codecov-action@v1
       if: matrix.coverage
       with:
         token: ${{ secrets.CODECOV_TOKEN }} #required
-        file: ./lcov-${{ runner.os }}.info
+        file: ./lcov.info
         fail_ci_if_error: false #optional (default = false)
 
     # - name: Coveralls
@@ -114,7 +114,7 @@ jobs:
     #   uses: coverallsapp/github-action@master
     #   with:
     #     github-token: ${{ secrets.GITHUB_TOKEN }}
-    #     path-to-lcov: ./lcov-${{ runner.os }}.info
+    #     path-to-lcov: ./lcov.info
     - name: Coveralls Parallel
       if: matrix.coverage
       uses: coverallsapp/github-action@master
@@ -122,11 +122,12 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         parallel: true
-        path-to-lcov: ./lcov-${{ runner.os }}.info # optional (default value)
+        path-to-lcov: ./lcov.info # optional (default value)
     # - name: Coveralls Finished
     #   if: matrix.coverage
-    #   # uses: coverallsapp/github-action@master
+    #   uses: coverallsapp/github-action@master
     #   uses: jlabeit/github-action@fix-paralle-builds
+        uses: LumaKernel/github-action@test
     #   with:
     #     github-token: ${{ secrets.GITHUB_TOKEN }}
     #     parallel-finished: true
@@ -141,7 +142,8 @@ jobs:
     steps:
     - name: Coveralls Finished
       # uses: coverallsapp/github-action@master
-      uses: jlabeit/github-action@fix-paralle-builds
+      # uses: jlabeit/github-action@fix-paralle-builds
+      uses: LumaKernel/github-action@test
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         parallel-finished: true
