@@ -121,6 +121,10 @@ jobs:
   coverage-coveralls:
     needs: ["win-test"]
     runs-on: ubuntu-latest
+
+    env:
+      NODE_COVERALLS_DEBUG: 1
+
     steps:
     - name: cat lcov.info
       run: cat lcov.info || true
