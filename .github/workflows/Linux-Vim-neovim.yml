@@ -11,7 +11,7 @@ on:
 
 
 jobs:
-  win-test:
+  test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -117,20 +117,19 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         parallel: true
         path-to-lcov: ./lcov.info # optional (default value)
-
-  coverage-coveralls:
-    needs: ["win-test"]
-    runs-on: ubuntu-latest
-
-    env:
-      NODE_COVERALLS_DEBUG: 1
-
-    steps:
-    - name: cat lcov.info
-      run: cat lcov.info || true
-
     - name: Coveralls Finished
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         parallel-finished: true
+  #
+  # coverage-coveralls:
+  #   needs: ["win-test"]
+  #   runs-on: ubuntu-latest
+  #
+  #   env:
+  #     NODE_COVERALLS_DEBUG: 1
+  #
+  #   steps:
+  #   - name: cat lcov.info
+  #     run: cat lcov.info || true
