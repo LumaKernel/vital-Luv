@@ -128,7 +128,7 @@ jobs:
     runs-on: ubuntu-latest
   
     env:
-      NODE_COVERALLS_DEBUG: 1
+      node_coveralls_debug: 1
 
     # steps:
     # - name: Coveralls Finished
