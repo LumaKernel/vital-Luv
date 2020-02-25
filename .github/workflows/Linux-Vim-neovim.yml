@@ -123,12 +123,12 @@ jobs:
         parallel: true
         path-to-lcov: ./lcov-${{ runner.os }}.info # optional (default value)
   
-  coverage-coveralls:
-    needs: ["test"]
-    runs-on: ubuntu-latest
-  
-    env:
-      node_coveralls_debug: 1
+  # coverage-coveralls:
+  #   needs: ["test"]
+  #   runs-on: ubuntu-latest
+  #
+  #   env:
+  #     node_coveralls_debug: 1
 
     # steps:
     # - name: Coveralls Finished
