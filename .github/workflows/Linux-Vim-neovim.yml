@@ -117,8 +117,9 @@ jobs:
     #     path-to-lcov: ./lcov.info
     - name: Coveralls Parallel
       if: matrix.coverage
-      uses: coverallsapp/github-action@master
+      # uses: coverallsapp/github-action@master
       # uses: jlabeit/github-action@fix-paralle-builds
+      uses: LumaKernel/github-action@test
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         parallel: true
@@ -127,7 +128,6 @@ jobs:
     #   if: matrix.coverage
     #   uses: coverallsapp/github-action@master
     #   uses: jlabeit/github-action@fix-paralle-builds
-        uses: LumaKernel/github-action@test
     #   with:
     #     github-token: ${{ secrets.GITHUB_TOKEN }}
     #     parallel-finished: true
