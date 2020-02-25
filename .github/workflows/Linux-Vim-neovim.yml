@@ -36,6 +36,7 @@ jobs:
 
     env:
       THEMIS_PROFILE: vim-profile.txt
+      NODE_COVERALLS_DEBUG: 1
 
     steps:
     - name: Install Vim
