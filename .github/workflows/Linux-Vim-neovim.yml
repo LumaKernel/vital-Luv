@@ -11,7 +11,7 @@ on:
 
 
 jobs:
-  test:
+  win-test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -109,7 +109,6 @@ jobs:
     #   with:
     #     github-token: ${{ secrets.GITHUB_TOKEN }}
     #     path-to-lcov: ./lcov.info
-
     - name: Coveralls Parallel
       if: matrix.coverage
       uses: coverallsapp/github-action@master
@@ -117,7 +116,10 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         parallel: true
         path-to-lcov: ./lcov.info # optional (default value)
-    
+
+  coverage-coveralls:
+    needs: ["win-test"]
+    runs-on: ubuntu-latest
     - name: Coveralls Finished
       if: matrix.coverage
       uses: coverallsapp/github-action@master
