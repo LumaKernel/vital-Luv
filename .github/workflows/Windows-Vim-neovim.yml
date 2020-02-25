@@ -90,30 +90,37 @@ jobs:
       run: |
         $env:PATH = "$env:USERPROFILE\vcov\bin;$env:PATH"
         vcov --version
-        vcov $env:THEMIS_PROFILE -o lcov.txt
+        vcov $env:THEMIS_PROFILE -o lcov.info
 
-    - name: cat lcov.txt
+    - name: cat lcov.info
       if: matrix.coverage
-      run: cat lcov.txt
+      run: cat lcov.info
 
     - uses: codecov/codecov-action@v1
       if: matrix.coverage
       with:
         token: ${{ secrets.CODECOV_TOKEN }} #required
-        file: ./lcov.txt
+        file: ./lcov.info
         fail_ci_if_error: false #optional (default = false)
 
-    - name: Coveralls Parallel
+    - name: Coveralls
       if: matrix.coverage
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        parallel: true
-        path-to-lcov: ./lcov.txt # optional (default value)
+        path-to-lcov: ./lcov.info
 
-    - name: Coveralls Finished
-      if: matrix.coverage
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        parallel-finished: true
+    # - name: Coveralls Parallel
+    #   if: matrix.coverage
+    #   uses: coverallsapp/github-action@master
+    #   with:
+    #     github-token: ${{ secrets.GITHUB_TOKEN }}
+    #     parallel: true
+    #     path-to-lcov: ./lcov.info # optional (default value)
+    #
+    # - name: Coveralls Finished
+    #   if: matrix.coverage
+    #   uses: coverallsapp/github-action@master
+    #   with:
+    #     github-token: ${{ secrets.GITHUB_TOKEN }}
+    #     parallel-finished: true
