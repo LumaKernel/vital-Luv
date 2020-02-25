@@ -104,12 +104,12 @@ jobs:
         file: ./lcov.info
         fail_ci_if_error: false #optional (default = false)
 
-    - name: Coveralls
-      if: matrix.coverage
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: ./lcov.info
+    # - name: Coveralls
+    #   if: matrix.coverage
+    #   uses: coverallsapp/github-action@master
+    #   with:
+    #     github-token: ${{ secrets.GITHUB_TOKEN }}
+    #     path-to-lcov: ./lcov.info
 
     # - name: Coveralls Parallel
     #   if: matrix.coverage
