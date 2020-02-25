@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         name:
           - vim-v8.2
@@ -125,6 +126,13 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         parallel: true
         path-to-lcov: ./lcov-${{ runner.os }}.info # optional (default value)
+    - name: Coveralls Finished
+      if: matrix.coverage
+      # uses: coverallsapp/github-action@master
+      uses: jlabeit/github-action@fix-paralle-builds
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        parallel-finished: true
   
   # coverage-coveralls:
   #   needs: ["test"]
