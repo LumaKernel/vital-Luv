@@ -120,6 +120,7 @@ jobs:
   coverage-coveralls:
     needs: ["win-test"]
     runs-on: ubuntu-latest
+    steps:
     - name: Coveralls Finished
       if: matrix.coverage
       uses: coverallsapp/github-action@master
