@@ -26,22 +26,22 @@ jobs:
           - name: vim-v8.2
             vim-url: v8.2.0182/GVim-v8.2.0182.glibc2.15-x86_64.AppImage
             coverage: true
-            COVERALLS_SERVICE_NUMBER: 1
+            COVERALLS_SERVICE_JOB_ID: ${{ github.sha }}-1
           - name: vim-v8.1
             vim-url: v8.1.2414/GVim-v8.1.2414.glibc2.15-x86_64.AppImage
           - name: neovim-nightly
             neovim-version: nightly
             coverage: true
-            COVERALLS_SERVICE_NUMBER: 2
+            COVERALLS_SERVICE_JOB_ID: ${{ github.sha }}-2
           - name: neovim-v0.4.3
             neovim-version: v0.4.3
             coverage: true
-            COVERALLS_SERVICE_NUMBER: 3
+            COVERALLS_SERVICE_JOB_ID: ${{ github.sha }}-3
 
     env:
       THEMIS_PROFILE: vim-profile.txt
       NODE_COVERALLS_DEBUG: 1
-      COVERALLS_SERVICE_NUMBER: ${{ matrix.COVERALLS_SERVICE_NUMBER }}
+      COVERALLS_SERVICE_JOB_ID: ${{ matrix.COVERALLS_SERVICE_JOB_ID }}
 
     steps:
     - name: Install Vim
