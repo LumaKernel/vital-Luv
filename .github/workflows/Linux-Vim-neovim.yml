@@ -55,7 +55,7 @@ jobs:
       run: git clone --depth 1 --branch v1.5.4 --single-branch https://github.com/thinca/vim-themis ~/themis
 
     - name: Install vcov
-      run: git clone --depth 1 --branch v0.2.0 --single-branch https://github.com/LumaKernel/vcov ~/vcov
+      run: git clone --depth 1 --branch v0.2.0 --single-branch https://github.com/LumaKernel/vcov $HOME/vcov
 
     - uses: actions/checkout@v2
 
@@ -88,7 +88,7 @@ jobs:
     - name: Make coverage report
       if: matrix.coverage
       run: |
-        export PATH=~/vcov/bin:$PATH
+        export PATH=$HOME/vcov/bin:$PATH
         vcov --version
         vcov $THEMIS_PROFILE -o lcov.info
 
@@ -103,12 +103,12 @@ jobs:
         file: ./lcov.info
         fail_ci_if_error: false #optional (default = false)
 
-    - name: Coveralls
-      if: matrix.coverage
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: ./lcov.info
+    # - name: Coveralls
+    #   if: matrix.coverage
+    #   uses: coverallsapp/github-action@master
+    #   with:
+    #     github-token: ${{ secrets.GITHUB_TOKEN }}
+    #     path-to-lcov: ./lcov.info
     - name: Coveralls Parallel
       if: matrix.coverage
       uses: coverallsapp/github-action@master
