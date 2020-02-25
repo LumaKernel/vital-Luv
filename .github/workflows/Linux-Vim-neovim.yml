@@ -121,6 +121,10 @@ jobs:
     needs: ["win-test"]
     runs-on: ubuntu-latest
     steps:
+    - name: cat lcov.info
+      if: matrix.coverage
+      run: cat lcov.info
+
     - name: Coveralls Finished
       uses: coverallsapp/github-action@master
       with:
