@@ -41,7 +41,7 @@ jobs:
     env:
       THEMIS_PROFILE: vim-profile.txt
       NODE_COVERALLS_DEBUG: 1
-      COVERALLS_SERVICE_JOB_ID: 125
+      COVERALLS_SERVICE_JOB_ID: 127
 
     steps:
     - name: Install Vim
@@ -139,7 +139,7 @@ jobs:
   
     env:
       NODE_COVERALLS_DEBUG: 1
-      COVERALLS_SERVICE_JOB_ID: 125
+      COVERALLS_SERVICE_JOB_ID: 127
   
     steps:
     - name: Coveralls Finished
