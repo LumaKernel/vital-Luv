@@ -1,4 +1,10 @@
 
+if has('nvim')
+  echo 1
+else
+  echo 1
+endif
+
 let s:_providers = {}
 function! s:_vital_loaded(V) abort
   let s:L = a:V.import('Data.List')
